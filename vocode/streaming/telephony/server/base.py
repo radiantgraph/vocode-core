@@ -212,7 +212,8 @@ class TelephonyServer:
         return {"id": conversation_id}
 
     # Define the handler for the outbound call
-    async def make_call(self, make_call_request: MakeCallRequest, background_tasks: BackgroundTasks):
+    async def make_call(self, background_tasks: BackgroundTasks):
+        make_call_request = MakeCallRequest.parse_obj(await request.json())
         to_phone = make_call_request.to_phone
         flag = make_call_request.flag
 
