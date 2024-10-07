@@ -1,6 +1,6 @@
 import abc
 from functools import partial
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from fastapi import APIRouter, Form, Request, Response, BackgroundTasks
 from loguru import logger
@@ -55,6 +55,8 @@ class VonageAnswerRequest(BaseModel):
     from_: str = Field(..., alias="from")
     uuid: str
 
+class OutboundCallConfigs(BaseModel):
+    agent_configs: Dict[str, ChatGPTAgentConfig]  # Mapping from flag to ChatGPTAgentConfig
 
 class MakeCallRequest(BaseModel):
     to_phone: str
@@ -72,12 +74,14 @@ class TelephonyServer:
         synthesizer_factory: AbstractSynthesizerFactory = DefaultSynthesizerFactory(),
         events_manager: Optional[EventsManager] = None,
         outbound_synthesizer_config: Optional[SynthesizerConfig] = None,
+        outbound_call_configs: Optional[OutboundCallConfigs] = None
     ):
         self.base_url = base_url
         self.router = APIRouter()
         self.config_manager = config_manager
         self.events_manager = events_manager
         self.outbound_synthesizer_config = outbound_synthesizer_config
+        self.outbound_call_configs = outbound_call_configs or OutboundCallConfigs(agent_configs={})
 
         self.router.include_router(
             CallsRouter(
@@ -129,38 +133,24 @@ class TelephonyServer:
 
     async def make_call(
         self,
-        to_phone: str,
-        flag: str,
+        request: Request,
         background_tasks: BackgroundTasks
     ):
-        # Validate the flag
-        if flag not in {"demo1", "demo2", "demo3"}:
-            return Response(status_code=400, content="Invalid flag provided.")
+        try:
+            data = await request.json()
+            to_phone = data["to_phone"]
+            flag = data["flag"]
+        except (ValueError, KeyError) as e:
+            logger.error(f"Invalid request body: {e}")
+            return Response(status_code=400, content="Invalid request body. 'to_phone' and 'flag' are required.")
 
-        # Set up agent_config based on the flag
-        if flag == "demo1":
-            agent_config = ChatGPTAgentConfig(
-                initial_message=BaseMessage(text="Demo1 initial message"),
-                prompt_preamble="Demo1 prompt preamble",
-                generate_responses=True,
-                model_name="gpt-4o"
-            )
-        elif flag == "demo2":
-            agent_config = ChatGPTAgentConfig(
-                initial_message=BaseMessage(text="Demo2 initial message"),
-                prompt_preamble="Demo2 prompt preamble",
-                generate_responses=True,
-                model_name="gpt-4o"
-            )
-        elif flag == "demo3":
-            agent_config = ChatGPTAgentConfig(
-                initial_message=BaseMessage(text="Demo3 initial message"),
-                prompt_preamble="Demo3 prompt preamble",
-                generate_responses=True,
-                model_name="gpt-4o"
-            )
+        # Retrieve the corresponding agent_config based on the flag
+        agent_config = self.outbound_call_configs.agent_configs.get(flag)
+        if not agent_config:
+            logger.error(f"Invalid or missing flag provided: {flag}")
+            return Response(status_code=400, content="Invalid or missing flag provided.")
 
-        # Create an instance of OutboundCall
+        # Create an instance of OutboundCall with the retrieved agent_config
         outbound_call = OutboundCall(
             base_url=self.base_url,
             to_phone=to_phone,
@@ -176,6 +166,8 @@ class TelephonyServer:
 
         # Start the outbound call in the background
         background_tasks.add_task(outbound_call.start)
+
+        logger.info(f"Outbound call initiated to {to_phone} with flag {flag}")
 
         return {"status": "Outbound call initiated."}
 
