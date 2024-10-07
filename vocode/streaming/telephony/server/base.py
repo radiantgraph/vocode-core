@@ -2,15 +2,15 @@ import abc
 from functools import partial
 from typing import List, Optional
 
-from fastapi import APIRouter, Form, Request, Response
+from fastapi import APIRouter, Form, Request, Response, BackgroundTasks
 from loguru import logger
 from pydantic.v1 import BaseModel, Field
 
 from vocode.streaming.agent.abstract_factory import AbstractAgentFactory
 from vocode.streaming.agent.default_factory import DefaultAgentFactory
-from vocode.streaming.models.agent import AgentConfig
+from vocode.streaming.models.agent import AgentConfig, ChatGPTAgentConfig
 from vocode.streaming.models.events import RecordingEvent
-from vocode.streaming.models.synthesizer import SynthesizerConfig
+from vocode.streaming.models.synthesizer import SynthesizerConfig  
 from vocode.streaming.models.telephony import (
     TwilioCallConfig,
     TwilioConfig,
@@ -30,6 +30,9 @@ from vocode.streaming.transcriber.abstract_factory import AbstractTranscriberFac
 from vocode.streaming.transcriber.default_factory import DefaultTranscriberFactory
 from vocode.streaming.utils import create_conversation_id
 from vocode.streaming.utils.events_manager import EventsManager
+from vocode.streaming.models.message import BaseMessage
+from vocode.streaming.telephony.conversation.outbound_call import OutboundCall  # Corrected import
+import os
 
 
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
@@ -53,6 +56,11 @@ class VonageAnswerRequest(BaseModel):
     uuid: str
 
 
+class MakeCallRequest(BaseModel):
+    to_phone: str
+    flag: str  # Should be one of 'demo1', 'demo2', 'demo3'
+
+
 class TelephonyServer:
     def __init__(
         self,
@@ -63,11 +71,14 @@ class TelephonyServer:
         agent_factory: AbstractAgentFactory = DefaultAgentFactory(),
         synthesizer_factory: AbstractSynthesizerFactory = DefaultSynthesizerFactory(),
         events_manager: Optional[EventsManager] = None,
+        outbound_synthesizer_config: Optional[SynthesizerConfig] = None,  # {{ edit_1 }} Add this parameter
     ):
         self.base_url = base_url
         self.router = APIRouter()
         self.config_manager = config_manager
         self.events_manager = events_manager
+        self.outbound_synthesizer_config = outbound_synthesizer_config  # {{ edit_2 }} Store the outbound synthesizer config
+
         self.router.include_router(
             CallsRouter(
                 base_url=base_url,
@@ -93,6 +104,16 @@ class TelephonyServer:
         )
         logger.info(
             f"Set up recordings endpoint at https://{self.base_url}/recordings/{{conversation_id}}"
+        )
+
+        # Add the new /make_call API route
+        self.router.add_api_route(
+            "/make_call",
+            self.make_call,
+            methods=["POST"],
+        )
+        logger.info(
+            f"Set up make_call endpoint at https://{self.base_url}/make_call"
         )
 
     def events(self, request: Request):
@@ -189,6 +210,57 @@ class TelephonyServer:
             )
             await telephony_client.end_call(call_config.vonage_uuid)
         return {"id": conversation_id}
+
+    # Define the handler for the outbound call
+    async def make_call(self, make_call_request: MakeCallRequest, background_tasks: BackgroundTasks):
+        to_phone = make_call_request.to_phone
+        flag = make_call_request.flag
+
+        # Validate the flag
+        if flag not in {"demo1", "demo2", "demo3"}:
+            return Response(status_code=400, content="Invalid flag provided.")
+
+        # Set up agent_config based on the flag
+        if flag == "demo1":
+            agent_config = ChatGPTAgentConfig(
+                initial_message=BaseMessage(text="Demo1 initial message"),
+                prompt_preamble="Demo1 prompt preamble",
+                generate_responses=True,
+                model_name="gpt-4o"
+            )
+        elif flag == "demo2":
+            agent_config = ChatGPTAgentConfig(
+                initial_message=BaseMessage(text="Demo2 initial message"),
+                prompt_preamble="Demo2 prompt preamble",
+                generate_responses=True,
+                model_name="gpt-4o"
+            )
+        elif flag == "demo3":
+            agent_config = ChatGPTAgentConfig(
+                initial_message=BaseMessage(text="Demo3 initial message"),
+                prompt_preamble="Demo3 prompt preamble",
+                generate_responses=True,
+                model_name="gpt-4o"
+            )
+
+        # Create an instance of OutboundCall
+        outbound_call = OutboundCall(
+            base_url=self.base_url,
+            to_phone=to_phone,
+            from_phone=os.environ["TWILIO_FROM_PHONE"],  # Ensure this env variable is set
+            config_manager=self.config_manager,
+            agent_config=agent_config,
+            telephony_config=TwilioConfig(
+                account_sid=os.environ["TWILIO_ACCOUNT_SID"],
+                auth_token=os.environ["TWILIO_AUTH_TOKEN"],
+            ),
+            synthesizer_config=self.outbound_synthesizer_config,  # {{ edit_3 }} Pass the synthesizer_config
+        )
+
+        # Start the outbound call in the background
+        background_tasks.add_task(outbound_call.start)
+
+        return {"status": "Outbound call initiated."}
 
     def get_router(self) -> APIRouter:
         return self.router
