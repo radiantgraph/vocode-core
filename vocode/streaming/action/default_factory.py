@@ -40,7 +40,7 @@ class DefaultActionFactory(AbstractActionFactory):
         self.actions = CONVERSATION_ACTIONS
 
     def create_action(self, action_config: ActionConfig):
-        logger.debug("From Default_factory : action_config:",action_config)
+        logger.debug(f"From Default_factory \n action_config: {action_config} \n  action_dict: {self.action_configs_dict}")
         if action_config.type not in self.action_configs_dict:
             raise Exception(f"Action type not supported by Agent config {action_config.type}")
 
