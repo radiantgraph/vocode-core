@@ -35,9 +35,10 @@ TWILIO_ACTIONS: Dict[ActionType, Type[TwilioPhoneConversationAction]] = {
 
 class DefaultActionFactory(AbstractActionFactory):
     def __init__(self, actions: Sequence[ActionConfig] | dict = {}):
-
+        
+        self.actions = {**CONVERSATION_ACTIONS, **TWILIO_ACTIONS}
         self.action_configs_dict = {action.type: action for action in actions}
-        self.actions = CONVERSATION_ACTIONS
+        
 
     def create_action(self, action_config: ActionConfig):
         logger.debug(f"From Default_factory \n action_config: {action_config} \n  action_dict: {self.action_configs_dict}")
