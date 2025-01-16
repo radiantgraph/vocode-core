@@ -13,7 +13,7 @@ from vocode.streaming.action.record_email import RecordEmail
 from vocode.streaming.action.transfer_call import TwilioTransferCall, VonageTransferCall
 from vocode.streaming.action.wait import Wait
 from vocode.streaming.models.actions import ActionConfig, ActionType
-
+from loguru import logger
 CONVERSATION_ACTIONS: Dict[ActionType, Type[BaseAction]] = {
     ActionType.END_CONVERSATION: EndConversation,
     ActionType.RECORD_EMAIL: RecordEmail,
@@ -39,8 +39,9 @@ class DefaultActionFactory(AbstractActionFactory):
         self.actions = CONVERSATION_ACTIONS
 
     def create_action(self, action_config: ActionConfig):
+        logger.debug("From Default_factory : action_config:",action_config)
         if action_config.type not in self.action_configs_dict:
-            raise Exception("Action type not supported by Agent config.")
+            raise Exception("Action type not supported by Agent config.{action_config.type}")
 
         action_class = self.actions[action_config.type]
 

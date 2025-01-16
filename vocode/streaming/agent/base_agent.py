@@ -341,6 +341,7 @@ class RespondAgent(BaseAgent[AgentConfigType]):
             if self.agent_config.actions
             else None
         )
+        logger.debug("phrase_trigger_match_action_config:",phrase_trigger_match_action_config)
         if phrase_trigger_match_action_config:
             action = self.action_factory.create_action(phrase_trigger_match_action_config)
             action_input = self.create_action_input(
