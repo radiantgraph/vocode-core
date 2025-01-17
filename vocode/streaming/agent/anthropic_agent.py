@@ -11,7 +11,7 @@ from vocode.streaming.action.default_factory import DefaultActionFactory
 from vocode.streaming.agent.anthropic_utils import format_anthropic_chat_messages_from_transcript
 from vocode.streaming.agent.base_agent import GeneratedResponse, RespondAgent, StreamedResponse
 from vocode.streaming.agent.streaming_utils import collate_response_async, stream_response_async
-from vocode.streaming.models.actions import FunctionFragment
+from vocode.streaming.models.actions import FunctionFragment, FunctionCallActionTrigger
 from vocode.streaming.models.agent import AnthropicAgentConfig
 from vocode.streaming.models.message import BaseMessage, LLMToken
 from vocode.streaming.vector_db.factory import VectorDBFactory
@@ -35,6 +35,16 @@ class AnthropicAgent(RespondAgent[AnthropicAgentConfig]):
         )
         self.anthropic_client = AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
+    def get_functions(self):
+        assert self.agent_config.actions
+        if not self.action_factory:
+            return None
+        return [
+            self.action_factory.create_action(action_config).get_function_representation()
+            for action_config in self.agent_config.actions
+            if isinstance(action_config.action_trigger, FunctionCallActionTrigger)
+        ]
+
     def get_chat_parameters(self, messages: list = [], use_functions: bool = True):
         assert self.transcript is not None
 
@@ -47,6 +57,9 @@ class AnthropicAgent(RespondAgent[AnthropicAgentConfig]):
         }
 
         parameters["model"] = self.agent_config.model_name
+
+        if use_functions and self.functions:
+            parameters["functions"] = self.functions
 
         return parameters
 
