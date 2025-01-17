@@ -46,7 +46,16 @@ def instantiate_openai_client(agent_config: ChatGPTAgentConfig, model_fallback: 
             base_url=agent_config.base_url_override or "https://api.openai.com/v1",
             max_retries=0 if model_fallback else OPENAI_DEFAULT_MAX_RETRIES,
         )
+    
+from vocode.streaming.action.transfer_call import TwilioTransferCall
+from vocode.streaming.models.actions import ActionConfig
 
+class MyCustomActionFactory(AbstractActionFactory):
+    def create_action(self, action_config: ActionConfig):
+        if action_config.type == "action_transfer_call":
+            return TwilioTransferCall(action_config)
+        else:
+            raise Exception("Action type not supported by Agent config.")
 
 class ChatGPTAgent(RespondAgent[ChatGPTAgentConfigType]):
     openai_client: Union[AsyncOpenAI, AsyncAzureOpenAI]
@@ -54,7 +63,7 @@ class ChatGPTAgent(RespondAgent[ChatGPTAgentConfigType]):
     def __init__(
         self,
         agent_config: ChatGPTAgentConfigType,
-        action_factory: AbstractActionFactory = DefaultActionFactory(),
+        action_factory: AbstractActionFactory = MyCustomActionFactory(),
         vector_db_factory=VectorDBFactory(),
         **kwargs,
     ):
@@ -75,6 +84,7 @@ class ChatGPTAgent(RespondAgent[ChatGPTAgentConfigType]):
 
     def get_functions(self):
         assert self.agent_config.actions
+        logger.debug(f"From ChatGPTAgent \n actions: {self.agent_config.actions}")
         if not self.action_factory:
             return None
         return [
