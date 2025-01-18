@@ -591,7 +591,7 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
         transcriber: BaseTranscriber[TranscriberConfig],
         agent: BaseAgent,
         synthesizer: BaseSynthesizer,
-        speed_coefficient: float = 2.0,
+        speed_coefficient: float = 1.0,
         conversation_id: Optional[str] = None,
         events_manager: Optional[EventsManager] = None,
     ):
