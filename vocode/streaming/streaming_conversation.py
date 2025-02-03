@@ -588,7 +588,6 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
         ):
             try:
                 message, synthesis_result = item.payload
-                logger.info("Processing item with message: %s", message)
                 if isinstance(message, EndOfTurn):
                     logger.info("EndOfTurn message received")
                     if self.last_transcript_message is not None:
@@ -604,7 +603,6 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                     sender=Sender.BOT,
                     is_backchannel=isinstance(message, BotBackchannel),
                 )
-                logger.info("Created transcript message: %s", transcript_message)
                 if not isinstance(message, SilenceMessage):
                     self.conversation.transcript.add_message(
                         message=transcript_message,
@@ -895,7 +893,6 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
 
     def mark_last_action_timestamp(self):
         self.last_action_timestamp = time.time()
-        logger.info("Marked last action timestamp: %s", self.last_action_timestamp)
 
     async def broadcast_interrupt(self):
         """Stops all inflight events and cancels all workers that are sending output
@@ -988,7 +985,6 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
             processed_event: asyncio.Event,
         ):
             def _on_play():
-                logger.info(f"Playing chunk {chunk_idx}")
                 if chunk_idx == 0:
                     if started_event:
                         started_event.set()
