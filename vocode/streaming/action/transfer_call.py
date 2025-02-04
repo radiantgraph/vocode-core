@@ -94,10 +94,10 @@ class TwilioTransferCall(
             is_interruptible=False,
             should_respond=SHOULD_RESPOND,
         )
-        logger.info("TwilioTransferCall initialized with config: %s", action_config)
+        logger.info(f"TwilioTransferCall initialized with config:{action_config}")
 
     async def transfer_call(self, twilio_call_sid: str, to_phone: str):
-        logger.info("Starting call transfer to %s for call SID %s", to_phone, twilio_call_sid)
+        logger.info(f"Starting call transfer to {to_phone} for call SID {twilio_call_sid}")
         twilio_client = self.conversation_state_manager.create_twilio_client()
 
         url = "https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Calls/{twilio_call_sid}.json".format(
@@ -123,9 +123,9 @@ class TwilioTransferCall(
     async def run(
         self, action_input: ActionInput[TransferCallParameters]
     ) -> ActionOutput[TransferCallResponse]:
-        logger.info("Running transfer call action with input: %s", action_input)
+        logger.info("Running transfer call action with input: {action_input}")
         twilio_call_sid = self.get_twilio_sid(action_input)
-        logger.info("Obtained Twilio call SID: %s", twilio_call_sid)
+        logger.info("Obtained Twilio call SID: {twilio_call_sid}")
 
         phone_number = self.action_config.get_phone_number(action_input)
         logger.info("Obtained phone number for transfer: %s", phone_number)
@@ -144,7 +144,7 @@ class TwilioTransferCall(
                 response=TransferCallResponse(success=False),
             )
         
-        logger.info("Transferring call to %s", sanitized_phone_number)
+        logger.info(f"Transferring call to {sanitized_phone_number}")
         await self.transfer_call(twilio_call_sid, sanitized_phone_number)
         
         logger.info("Call transfer successful")
