@@ -449,7 +449,7 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                         deepgram_response: Union[DeepgramUtteranceEnd, DeepgramTranscriptionResult]
 
                         if data["type"] == "Results":
-                            print(f'Deepgram->->->->->->->->->->'{data})
+                            print(f'Deepgram->->->->->->->->->-> {data}')
                             deepgram_response = DeepgramTranscriptionResult(
                                 is_final=data["is_final"],
                                 speech_final=data["speech_final"],
