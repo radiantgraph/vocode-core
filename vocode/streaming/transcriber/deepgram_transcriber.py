@@ -165,6 +165,9 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                 ),
                 1000,
             )  # Deepgram recommends using at least 1000ms since the tick period is ~1s
+        
+        extra_params['sentiment']="true"
+        
         url_params.update(extra_params)
         return f"{self.ws_url}/v1/listen?{urlencode(url_params, doseq=True)}"
 

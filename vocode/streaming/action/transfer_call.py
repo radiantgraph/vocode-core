@@ -99,7 +99,7 @@ class TwilioTransferCall(
     async def transfer_call(self, twilio_call_sid: str, to_phone: str):
         logger.info(f"Starting call transfer to {to_phone} for call SID {twilio_call_sid}")
         twilio_client = self.conversation_state_manager.create_twilio_client()
-
+        
         url = "https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Calls/{twilio_call_sid}.json".format(
             twilio_account_sid=twilio_client.get_telephony_config().account_sid,
             twilio_call_sid=twilio_call_sid,
