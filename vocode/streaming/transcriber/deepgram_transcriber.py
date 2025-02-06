@@ -440,6 +440,8 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                             break
                         data = json.loads(msg)
 
+                        print(f'Deepgram->->->->->->->->->-> \n {json.dumps(data, indent=4, sort_keys=True)}')
+
                         if "start" in data and "duration" in data:
                             self._track_transcription_latency(
                                 start=data["start"],
@@ -449,7 +451,7 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                         deepgram_response: Union[DeepgramUtteranceEnd, DeepgramTranscriptionResult]
 
                         if data["type"] == "Results":
-                            print(f'Deepgram->->->->->->->->->-> {data}')
+                            #print(f'Deepgram->->->->->->->->->-> {data}')
                             deepgram_response = DeepgramTranscriptionResult(
                                 is_final=data["is_final"],
                                 speech_final=data["speech_final"],
