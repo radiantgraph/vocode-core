@@ -166,7 +166,7 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                 1000,
             )  # Deepgram recommends using at least 1000ms since the tick period is ~1s
         
-        extra_params['sentiment']="true"
+        extra_params["no_delay"]="true"
 
         url_params.update(extra_params)
         return f"{self.ws_url}/v1/listen?{urlencode(url_params, doseq=True)}"
@@ -440,8 +440,6 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                             break
                         data = json.loads(msg)
 
-                        print(f'Deepgram --------------- \n {json.dumps(data, indent=4, sort_keys=True)}')
-
                         if "start" in data and "duration" in data:
                             self._track_transcription_latency(
                                 start=data["start"],
@@ -451,7 +449,6 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                         deepgram_response: Union[DeepgramUtteranceEnd, DeepgramTranscriptionResult]
 
                         if data["type"] == "Results":
-                            #print(f'Deepgram->->->->->->->->->-> {data}')
                             deepgram_response = DeepgramTranscriptionResult(
                                 is_final=data["is_final"],
                                 speech_final=data["speech_final"],
