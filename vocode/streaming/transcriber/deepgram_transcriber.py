@@ -440,7 +440,7 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                             break
                         data = json.loads(msg)
 
-                        print(f'Deepgram->->->->->->->->->-> \n {json.dumps(data, indent=4, sort_keys=True)}')
+                        print(f'Deepgram --------------- \n {json.dumps(data, indent=4, sort_keys=True)}')
 
                         if "start" in data and "duration" in data:
                             self._track_transcription_latency(
