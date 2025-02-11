@@ -125,7 +125,6 @@ class TwilioTransferCall(
         twilio_call_sid = self.get_twilio_sid(action_input)
 
         phone_number = self.action_config.get_phone_number(action_input)
-        logger.info("Obtained phone number for transfer: %s", phone_number)
         sanitized_phone_number = sanitize_phone_number(phone_number)
         logger.info("Sanitized phone number: %s", sanitized_phone_number)
 
