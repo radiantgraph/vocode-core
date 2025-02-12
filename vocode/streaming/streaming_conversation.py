@@ -90,7 +90,6 @@ BACKCHANNEL_PATTERNS = [
     r"ah+",
     r"um+",
     r"uh+",
-    "yes",
     "sure",
     "quite",
     "right",
@@ -106,7 +105,7 @@ BACKCHANNEL_PATTERNS = [
     r"yeah+",
     "makes sense",
 ]
-LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 3
+LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
 
 class StreamingConversation(AudioPipeline[OutputDeviceType]):

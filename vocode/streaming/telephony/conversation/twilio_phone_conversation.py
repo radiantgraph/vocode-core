@@ -52,7 +52,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         twilio_config: Optional[TwilioConfig] = None,
         conversation_id: Optional[str] = None,
         events_manager: Optional[EventsManager] = None,
-        record_call: bool = False,
+        record_call: bool = True,
         speed_coefficient: float = 1.0,
         noise_suppression: bool = False,  # is currently a no-op
     ):
@@ -97,6 +97,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
                 conversation_id=self.id,
                 to_phone_number=self.to_phone,
                 from_phone_number=self.from_phone,
+                twilio_sid=self.twilio_sid, 
             )
         )
         while self.is_active():

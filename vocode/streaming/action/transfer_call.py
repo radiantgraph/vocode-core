@@ -38,12 +38,15 @@ class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_c
     )
 
     def get_phone_number(self, input: ActionInput) -> str:
+        logger.info("Getting phone number for call transfer")
         if isinstance(input.params, TransferCallRequiredParameters):
+            logger.info("Phone number obtained from input parameters")
             return input.params.phone_number
         elif isinstance(input.params, TransferCallEmptyParameters):
             assert self.phone_number, "phone number must be set"
             return self.phone_number
         else:
+            logger.error("Invalid input params type")
             raise TypeError("Invalid input params type")
 
     def action_attempt_to_string(self, input: ActionInput) -> str:
@@ -93,6 +96,7 @@ class TwilioTransferCall(
         )
 
     async def transfer_call(self, twilio_call_sid: str, to_phone: str):
+
         twilio_client = self.conversation_state_manager.create_twilio_client()
 
         url = "https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Calls/{twilio_call_sid}.json".format(
@@ -111,15 +115,18 @@ class TwilioTransferCall(
                 logger.error(f"Failed to transfer call: {response.status} {response.reason}")
                 raise Exception("failed to update call")
             else:
+                logger.info("Call transfer response received successfully")
                 return await response.json()
 
     async def run(
         self, action_input: ActionInput[TransferCallParameters]
     ) -> ActionOutput[TransferCallResponse]:
+        logger.info("Running transfer call action with input: {action_input}")
         twilio_call_sid = self.get_twilio_sid(action_input)
 
         phone_number = self.action_config.get_phone_number(action_input)
         sanitized_phone_number = sanitize_phone_number(phone_number)
+        logger.info("Sanitized phone number: %s", sanitized_phone_number)
 
         if action_input.user_message_tracker is not None:
             await action_input.user_message_tracker.wait()
@@ -132,9 +139,11 @@ class TwilioTransferCall(
                 action_type=action_input.action_config.type,
                 response=TransferCallResponse(success=False),
             )
-
+        
+        logger.info(f"Transferring call to {sanitized_phone_number}")
         await self.transfer_call(twilio_call_sid, sanitized_phone_number)
-
+        
+        logger.info("Call transfer successfull")
         return ActionOutput(
             action_type=action_input.action_config.type,
             response=TransferCallResponse(success=True),
