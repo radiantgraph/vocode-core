@@ -10,7 +10,7 @@ from vocode.streaming.agent.abstract_factory import AbstractAgentFactory
 from vocode.streaming.agent.default_factory import DefaultAgentFactory
 from vocode.streaming.models.agent import AgentConfig, ChatGPTAgentConfig
 from vocode.streaming.models.events import RecordingEvent
-from vocode.streaming.models.synthesizer import SynthesizerConfig  
+from vocode.streaming.models.synthesizer import SynthesizerConfig
 from vocode.streaming.models.telephony import (
     TwilioCallConfig,
     TwilioConfig,
@@ -55,8 +55,10 @@ class VonageAnswerRequest(BaseModel):
     from_: str = Field(..., alias="from")
     uuid: str
 
+
 class OutboundCallConfigs(BaseModel):
     agent_configs: Dict[str, ChatGPTAgentConfig]  # Mapping from flag to ChatGPTAgentConfig
+
 
 class MakeCallRequest(BaseModel):
     to_phone: str
@@ -74,7 +76,7 @@ class TelephonyServer:
         synthesizer_factory: AbstractSynthesizerFactory = DefaultSynthesizerFactory(),
         events_manager: Optional[EventsManager] = None,
         outbound_synthesizer_config: Optional[SynthesizerConfig] = None,
-        outbound_call_configs: Optional[OutboundCallConfigs] = None
+        outbound_call_configs: Optional[OutboundCallConfigs] = None,
     ):
         self.base_url = base_url
         self.router = APIRouter()
@@ -116,9 +118,7 @@ class TelephonyServer:
             partial(self.make_call),  # Bind 'self' using partial
             methods=["POST"],
         )
-        logger.info(
-            f"Set up make_call endpoint at https://{self.base_url}/make_call"
-        )
+        logger.info(f"Set up make_call endpoint at https://{self.base_url}/make_call")
 
     def events(self, request: Request):
         return Response()
@@ -131,18 +131,16 @@ class TelephonyServer:
             )
         return Response()
 
-    async def make_call(
-        self,
-        request: Request,
-        background_tasks: BackgroundTasks
-    ):
+    async def make_call(self, request: Request, background_tasks: BackgroundTasks):
         try:
             data = await request.json()
             to_phone = data["to_phone"]
             flag = data["flag"]
         except (ValueError, KeyError) as e:
             logger.error(f"Invalid request body: {e}")
-            return Response(status_code=400, content="Invalid request body. 'to_phone' and 'flag' are required.")
+            return Response(
+                status_code=400, content="Invalid request body. 'to_phone' and 'flag' are required."
+            )
 
         # Retrieve the corresponding agent_config based on the flag
         agent_config = self.outbound_call_configs.agent_configs.get(flag)

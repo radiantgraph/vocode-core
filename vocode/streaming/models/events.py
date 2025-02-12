@@ -32,7 +32,6 @@ class PhoneCallConnectedEvent(Event, type=EventType.PHONE_CALL_CONNECTED):  # ty
     twilio_sid: Optional[str] = None
 
 
-
 class PhoneCallEndedEvent(Event, type=EventType.PHONE_CALL_ENDED):  # type: ignore
     conversation_minutes: float = 0
 
