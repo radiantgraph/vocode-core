@@ -1,8 +1,9 @@
 import abc
+import os
 from functools import partial
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
-from fastapi import APIRouter, Form, Request, Response, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Form, Request, Response
 from loguru import logger
 from pydantic.v1 import BaseModel, Field
 
@@ -10,6 +11,7 @@ from vocode.streaming.agent.abstract_factory import AbstractAgentFactory
 from vocode.streaming.agent.default_factory import DefaultAgentFactory
 from vocode.streaming.models.agent import AgentConfig, ChatGPTAgentConfig
 from vocode.streaming.models.events import RecordingEvent
+from vocode.streaming.models.message import BaseMessage
 from vocode.streaming.models.synthesizer import SynthesizerConfig
 from vocode.streaming.models.telephony import (
     TwilioCallConfig,
@@ -24,15 +26,13 @@ from vocode.streaming.telephony.client.abstract_telephony_client import Abstract
 from vocode.streaming.telephony.client.twilio_client import TwilioClient
 from vocode.streaming.telephony.client.vonage_client import VonageClient
 from vocode.streaming.telephony.config_manager.base_config_manager import BaseConfigManager
+from vocode.streaming.telephony.conversation.outbound_call import OutboundCall  # Corrected import
 from vocode.streaming.telephony.server.router.calls import CallsRouter
 from vocode.streaming.telephony.templater import get_connection_twiml
 from vocode.streaming.transcriber.abstract_factory import AbstractTranscriberFactory
 from vocode.streaming.transcriber.default_factory import DefaultTranscriberFactory
 from vocode.streaming.utils import create_conversation_id
 from vocode.streaming.utils.events_manager import EventsManager
-from vocode.streaming.models.message import BaseMessage
-from vocode.streaming.telephony.conversation.outbound_call import OutboundCall  # Corrected import
-import os
 
 
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
