@@ -1,8 +1,9 @@
 import abc
+import os
 from functools import partial
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
-from fastapi import APIRouter, Form, Request, Response, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Form, Request, Response
 from loguru import logger
 from pydantic.v1 import BaseModel, Field
 
@@ -10,7 +11,8 @@ from vocode.streaming.agent.abstract_factory import AbstractAgentFactory
 from vocode.streaming.agent.default_factory import DefaultAgentFactory
 from vocode.streaming.models.agent import AgentConfig, ChatGPTAgentConfig
 from vocode.streaming.models.events import RecordingEvent
-from vocode.streaming.models.synthesizer import SynthesizerConfig  
+from vocode.streaming.models.message import BaseMessage
+from vocode.streaming.models.synthesizer import SynthesizerConfig
 from vocode.streaming.models.telephony import (
     TwilioCallConfig,
     TwilioConfig,
@@ -24,15 +26,13 @@ from vocode.streaming.telephony.client.abstract_telephony_client import Abstract
 from vocode.streaming.telephony.client.twilio_client import TwilioClient
 from vocode.streaming.telephony.client.vonage_client import VonageClient
 from vocode.streaming.telephony.config_manager.base_config_manager import BaseConfigManager
+from vocode.streaming.telephony.conversation.outbound_call import OutboundCall  # Corrected import
 from vocode.streaming.telephony.server.router.calls import CallsRouter
 from vocode.streaming.telephony.templater import get_connection_twiml
 from vocode.streaming.transcriber.abstract_factory import AbstractTranscriberFactory
 from vocode.streaming.transcriber.default_factory import DefaultTranscriberFactory
 from vocode.streaming.utils import create_conversation_id
 from vocode.streaming.utils.events_manager import EventsManager
-from vocode.streaming.models.message import BaseMessage
-from vocode.streaming.telephony.conversation.outbound_call import OutboundCall  # Corrected import
-import os
 
 
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
@@ -55,8 +55,10 @@ class VonageAnswerRequest(BaseModel):
     from_: str = Field(..., alias="from")
     uuid: str
 
+
 class OutboundCallConfigs(BaseModel):
     agent_configs: Dict[str, ChatGPTAgentConfig]  # Mapping from flag to ChatGPTAgentConfig
+
 
 class MakeCallRequest(BaseModel):
     to_phone: str
@@ -74,7 +76,7 @@ class TelephonyServer:
         synthesizer_factory: AbstractSynthesizerFactory = DefaultSynthesizerFactory(),
         events_manager: Optional[EventsManager] = None,
         outbound_synthesizer_config: Optional[SynthesizerConfig] = None,
-        outbound_call_configs: Optional[OutboundCallConfigs] = None
+        outbound_call_configs: Optional[OutboundCallConfigs] = None,
     ):
         self.base_url = base_url
         self.router = APIRouter()
@@ -116,9 +118,7 @@ class TelephonyServer:
             partial(self.make_call),  # Bind 'self' using partial
             methods=["POST"],
         )
-        logger.info(
-            f"Set up make_call endpoint at https://{self.base_url}/make_call"
-        )
+        logger.info(f"Set up make_call endpoint at https://{self.base_url}/make_call")
 
     def events(self, request: Request):
         return Response()
@@ -131,18 +131,16 @@ class TelephonyServer:
             )
         return Response()
 
-    async def make_call(
-        self,
-        request: Request,
-        background_tasks: BackgroundTasks
-    ):
+    async def make_call(self, request: Request, background_tasks: BackgroundTasks):
         try:
             data = await request.json()
             to_phone = data["to_phone"]
             flag = data["flag"]
         except (ValueError, KeyError) as e:
             logger.error(f"Invalid request body: {e}")
-            return Response(status_code=400, content="Invalid request body. 'to_phone' and 'flag' are required.")
+            return Response(
+                status_code=400, content="Invalid request body. 'to_phone' and 'flag' are required."
+            )
 
         # Retrieve the corresponding agent_config based on the flag
         agent_config = self.outbound_call_configs.agent_configs.get(flag)
