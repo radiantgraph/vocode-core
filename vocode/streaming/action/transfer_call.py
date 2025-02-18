@@ -104,7 +104,7 @@ class TwilioTransferCall(
             twilio_call_sid=twilio_call_sid,
         )
 
-        twiml_data = "<Response><Dial>{to_phone}</Dial></Response>".format(to_phone=to_phone)
+        twiml_data = "<Response><Dial record='true'>{to_phone}</Dial></Response>".format(to_phone=to_phone)
 
         payload = {"Twiml": twiml_data}
 
