@@ -5,6 +5,8 @@ from typing import List, Optional, Dict
 from fastapi import APIRouter, Form, Request, Response, BackgroundTasks
 from loguru import logger
 from pydantic.v1 import BaseModel, Field
+import asyncio
+import httpx
 
 from vocode.streaming.agent.abstract_factory import AbstractAgentFactory
 from vocode.streaming.agent.default_factory import DefaultAgentFactory
@@ -170,6 +172,19 @@ class TelephonyServer:
         logger.info(f"Outbound call initiated to {to_phone} with flag {flag}")
 
         return {"status": "Outbound call initiated."}
+    
+    async def start_twilio_inbound_recording(
+            self, twilio_sid: str, auth_token: str, conversation_id: str
+    ) -> None:
+        url: str = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Calls/{conversation_id}/Recordings.json"
+
+        async with httpx.AsyncClient() as client:
+            response: Response = await client.post(url, data={}, auth=(twilio_sid, auth_token))
+
+        if response.status_code != 201:
+            logger.warning(f"Failed to start recording: {response.text}")
+        else:
+            logger.info(f"Recording started for call {twilio_sid}")
 
     def create_inbound_route(
         self,
@@ -194,8 +209,26 @@ class TelephonyServer:
                 direction="inbound",
             )
 
+            logger.info(f"Testing inbound call with config: {call_config}")
+
+            logger.info(f"Testing twilio_config: {twilio_config}")
+
+            logger.info(f"agent is ready to pick up call from {twilio_from}")
+
             conversation_id = create_conversation_id()
             await self.config_manager.save_config(conversation_id, call_config)
+
+            async def delay_start_recording() -> None:
+                await asyncio.sleep(1)
+                await self.start_twilio_inbound_recording(
+                    twilio_sid = twilio_config.account_sid,
+                    auth_token = twilio_config.auth_token,
+                    conversation_id = twilio_sid
+                )
+            
+            if twilio_config.record:
+                asyncio.create_task(coro=delay_start_recording())
+
             return get_connection_twiml(base_url=self.base_url, call_id=conversation_id)
 
         async def vonage_route(vonage_config: VonageConfig, request: Request):
