@@ -144,8 +144,8 @@ class TwilioTransferCall(
         phone_number = self.action_config.get_phone_number(action_input)
         sanitized_phone_number = sanitize_phone_number(phone_number)
         record = self.action_config.if_record(action_input)
-        logger.info("Sanitized phone number: %s", sanitized_phone_number)
-        logger.info("Record Call True/False: %s", record)
+        logger.info(f"Sanitized phone number: {sanitized_phone_number}")
+        logger.info(f"Record Call T/F: {record}")
 
         if action_input.user_message_tracker is not None:
             await action_input.user_message_tracker.wait()
