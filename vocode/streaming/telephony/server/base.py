@@ -209,10 +209,6 @@ class TelephonyServer:
                 direction="inbound",
             )
 
-            logger.info(f"Testing inbound call with config: {call_config}")
-
-            logger.info(f"Testing twilio_config: {twilio_config}")
-
             logger.info(f"agent is ready to pick up call from {twilio_from}")
 
             conversation_id = create_conversation_id()
