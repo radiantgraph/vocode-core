@@ -119,7 +119,7 @@ class TwilioTransferCall(
             twilio_call_sid=twilio_call_sid,
         )
 
-        twiml_data = "<Response><Dial record='{record}'>{to_phone}</Dial></Response>".format(
+        twiml_data = "<Response><Dial record='{record}' recordingChannels='dual'>{to_phone}</Dial></Response>".format(
                                                                                         record=record,  # Change to "false" if you don’t want to record
                                                                                         to_phone=to_phone)
 
