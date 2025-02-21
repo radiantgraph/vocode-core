@@ -34,6 +34,7 @@ class TransferCallResponse(BaseModel):
 
 
 class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_call"):  # type: ignore
+    
     phone_number: Optional[str] = Field(
         None, description="The phone number to transfer the call to"
     )
@@ -51,6 +52,7 @@ class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_c
             return self.phone_number
         else:
             logger.error("Invalid input params type")
+            return 'Invalid Input params type'
 
     def if_record(self, input: ActionInput) -> bool:
         logger.info("Getting bool value for recording the call")
