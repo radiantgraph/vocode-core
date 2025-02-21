@@ -84,7 +84,7 @@ async def test_twilio_transfer_call_succeeds(
     mock_twilio_config: TwilioConfig,
 ):
     action = TwilioTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False),
+        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
     )
     user_message_tracker = asyncio.Event()
     user_message_tracker.set()
@@ -93,7 +93,7 @@ async def test_twilio_transfer_call_succeeds(
 
     twilio_sid = "twilio_sid"
     action_input = TwilioPhoneConversationActionInput(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False),
+        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
         conversation_id=conversation_id,
         params=TransferCallEmptyParameters(),
         twilio_sid=twilio_sid,
@@ -130,7 +130,7 @@ async def test_twilio_transfer_call_fails_if_interrupted(
     mock_twilio_phone_conversation: MagicMock,
 ) -> None:
     action = TwilioTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False)
+        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False)
     )
     user_message_tracker = asyncio.Event()
     user_message_tracker.set()
