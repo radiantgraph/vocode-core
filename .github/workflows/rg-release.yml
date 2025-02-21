@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    concurrency: release
+    permissions: write-all
+    steps:
+    - name: Perform checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GH_TOKEN }}
+    - name: Poetry Build
+      id: poetry-build
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11" # need to parameterize this, 3.12 coming soon
+    - uses: Gr1N/setup-poetry@v8
+    - run: |
+        echo $(poetry version patch --short | sed 's/^/RELEASE_VERSION=v/') >> $GITHUB_ENV
+        poetry build
+        echo $(poetry version | cut -d' ' -f2 | sed 's/^/RELEASE_NUMBER=/') >> $GITHUB_ENV
+    - name: Commit and push pyproject.toml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GIT_COMMITTER_NAME: rg-service-account
+        GIT_COMMITTER_EMAIL: ops+github@radiantgraph.com
+        RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+      run: |
+        git config --global user.email $GIT_COMMITTER_EMAIL
+        git config --global user.name $GIT_COMMITTER_NAME
+        git add pyproject.toml
+        git commit -a -m "[skip ci]: $RELEASE_VERSION"
+        git push
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+      with:
+        tag_name: ${{ env.RELEASE_VERSION }}
+        name: Release ${{ env.RELEASE_VERSION }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        files: |
+          dist/*.tar.gz
+          dist/*.whl

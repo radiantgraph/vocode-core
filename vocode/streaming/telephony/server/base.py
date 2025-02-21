@@ -26,14 +26,13 @@ from vocode.streaming.telephony.client.abstract_telephony_client import Abstract
 from vocode.streaming.telephony.client.twilio_client import TwilioClient
 from vocode.streaming.telephony.client.vonage_client import VonageClient
 from vocode.streaming.telephony.config_manager.base_config_manager import BaseConfigManager
+from vocode.streaming.telephony.conversation.outbound_call import OutboundCall  # Corrected import
 from vocode.streaming.telephony.server.router.calls import CallsRouter
 from vocode.streaming.telephony.templater import get_connection_twiml
 from vocode.streaming.transcriber.abstract_factory import AbstractTranscriberFactory
 from vocode.streaming.transcriber.default_factory import DefaultTranscriberFactory
 from vocode.streaming.utils import create_conversation_id
 from vocode.streaming.utils.events_manager import EventsManager
-
-
 
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
     url: str
@@ -54,6 +53,7 @@ class VonageAnswerRequest(BaseModel):
     to: str
     from_: str = Field(..., alias="from")
     uuid: str
+
 
 class TelephonyServer:
     def __init__(
@@ -118,6 +118,7 @@ class TelephonyServer:
             )
         return Response()
 
+
     # async def make_call(
     #     self,
     #     request: Request,
@@ -153,6 +154,7 @@ class TelephonyServer:
 
     #     # Start the outbound call in the background
     #     background_tasks.add_task(outbound_call.start)
+
 
     #     logger.info(f"Outbound call initiated to {to_phone} with flag {flag}")
 

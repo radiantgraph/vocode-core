@@ -161,10 +161,11 @@ class TwilioTransferCall(
                 action_type=action_input.action_config.type,
                 response=TransferCallResponse(success=False),
             )
-        
+
         logger.info(f"Transferring call to {sanitized_phone_number}")
+
         await self.transfer_call(twilio_call_sid, sanitized_phone_number, record)
-        
+
         logger.info("Call transfer successfull")
         return ActionOutput(
             action_type=action_input.action_config.type,
