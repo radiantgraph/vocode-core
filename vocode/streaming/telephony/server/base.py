@@ -55,14 +55,6 @@ class VonageAnswerRequest(BaseModel):
     from_: str = Field(..., alias="from")
     uuid: str
 
-class OutboundCallConfigs(BaseModel):
-    agent_configs: Dict[str, ChatGPTAgentConfig]  # Mapping from flag to ChatGPTAgentConfig
-
-class MakeCallRequest(BaseModel):
-    to_phone: str
-    flag: str  # Should be one of 'demo1', 'demo2', 'demo3'
-
-
 class TelephonyServer:
     def __init__(
         self,
@@ -73,16 +65,11 @@ class TelephonyServer:
         agent_factory: AbstractAgentFactory = DefaultAgentFactory(),
         synthesizer_factory: AbstractSynthesizerFactory = DefaultSynthesizerFactory(),
         events_manager: Optional[EventsManager] = None,
-        outbound_synthesizer_config: Optional[SynthesizerConfig] = None,
-        outbound_call_configs: Optional[OutboundCallConfigs] = None
     ):
         self.base_url = base_url
         self.router = APIRouter()
         self.config_manager = config_manager
         self.events_manager = events_manager
-        self.outbound_synthesizer_config = outbound_synthesizer_config
-        self.outbound_call_configs = outbound_call_configs or OutboundCallConfigs(agent_configs={})
-
         self.router.include_router(
             CallsRouter(
                 base_url=base_url,
