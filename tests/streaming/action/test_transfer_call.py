@@ -84,7 +84,7 @@ async def test_twilio_transfer_call_succeeds(
     mock_twilio_config: TwilioConfig,
 ):
     action = TwilioTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER),
+        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False),
     )
     user_message_tracker = asyncio.Event()
     user_message_tracker.set()
@@ -93,7 +93,7 @@ async def test_twilio_transfer_call_succeeds(
 
     twilio_sid = "twilio_sid"
     action_input = TwilioPhoneConversationActionInput(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER),
+        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False),
         conversation_id=conversation_id,
         params=TransferCallEmptyParameters(),
         twilio_sid=twilio_sid,
@@ -130,7 +130,7 @@ async def test_twilio_transfer_call_fails_if_interrupted(
     mock_twilio_phone_conversation: MagicMock,
 ) -> None:
     action = TwilioTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER),
+        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False)
     )
     user_message_tracker = asyncio.Event()
     user_message_tracker.set()
@@ -153,7 +153,7 @@ async def test_twilio_transfer_call_fails_if_interrupted(
     )
 
     action_input = TwilioPhoneConversationActionInput(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER),
+        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False),
         conversation_id=conversation_id,
         params=TransferCallEmptyParameters(),
         twilio_sid="twilio_sid",
@@ -174,7 +174,7 @@ async def test_vonage_transfer_call_inbound(
 ) -> None:
     transfer_phone_number = "12345678920"
     action = VonageTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number=transfer_phone_number),
+        action_config=TransferCallVocodeActionConfig(phone_number=transfer_phone_number,record=False),
     )
 
     mocker.patch("vonage.Client._create_jwt_auth_string", return_value=b"asdf")
@@ -200,7 +200,7 @@ async def test_vonage_transfer_call_inbound(
         )
 
         action_input = VonagePhoneConversationActionInput(
-            action_config=TransferCallVocodeActionConfig(phone_number=transfer_phone_number),
+            action_config=TransferCallVocodeActionConfig(phone_number=transfer_phone_number,record=False),  
             conversation_id=conversation_id,
             params=TransferCallEmptyParameters(),
             vonage_uuid=str(vonage_uuid),
