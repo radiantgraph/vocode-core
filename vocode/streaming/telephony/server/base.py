@@ -166,7 +166,7 @@ class TelephonyServer:
         url: str = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Calls/{conversation_id}/Recordings.json"
 
         async with httpx.AsyncClient() as client:
-            response: Response = await client.post(url, data={}, auth=(twilio_sid, auth_token))
+            response: httpx.Response = await client.post(url, data={}, auth=(twilio_sid, auth_token))
 
         if response.status_code != 201:
             logger.warning(f"Failed to start recording: {response.text}")
