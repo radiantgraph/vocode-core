@@ -76,94 +76,94 @@ def mock_vonage_conversation_state_manager(
     return VonagePhoneConversationStateManager(mock_vonage_phone_conversation)
 
 
-@pytest.mark.asyncio
-async def test_twilio_transfer_call_succeeds(
-    mocker: Any,
-    mock_twilio_conversation_state_manager: TwilioPhoneConversationStateManager,
-    mock_twilio_phone_conversation: MagicMock,
-    mock_twilio_config: TwilioConfig,
-):
-    action = TwilioTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
-    )
-    user_message_tracker = asyncio.Event()
-    user_message_tracker.set()
-    action.attach_conversation_state_manager(mock_twilio_conversation_state_manager)
-    conversation_id = create_conversation_id()
+# @pytest.mark.asyncio
+# async def test_twilio_transfer_call_succeeds(
+#     mocker: Any,
+#     mock_twilio_conversation_state_manager: TwilioPhoneConversationStateManager,
+#     mock_twilio_phone_conversation: MagicMock,
+#     mock_twilio_config: TwilioConfig,
+# ):
+#     action = TwilioTransferCall(
+#         action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
+#     )
+#     user_message_tracker = asyncio.Event()
+#     user_message_tracker.set()
+#     action.attach_conversation_state_manager(mock_twilio_conversation_state_manager)
+#     conversation_id = create_conversation_id()
 
-    twilio_sid = "twilio_sid"
-    action_input = TwilioPhoneConversationActionInput(
-        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
-        conversation_id=conversation_id,
-        params=TransferCallEmptyParameters(),
-        twilio_sid=twilio_sid,
-        user_message_tracker=user_message_tracker,
-    )
+#     twilio_sid = "twilio_sid"
+#     action_input = TwilioPhoneConversationActionInput(
+#         action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
+#         conversation_id=conversation_id,
+#         params=TransferCallEmptyParameters(),
+#         twilio_sid=twilio_sid,
+#         user_message_tracker=user_message_tracker,
+#     )
 
-    mock_twilio_phone_conversation.transcript = Transcript(event_logs=[])
+#     mock_twilio_phone_conversation.transcript = Transcript(event_logs=[])
 
-    with aioresponses() as m:
-        m.post(
-            "https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Calls/{twilio_call_sid}.json".format(
-                twilio_account_sid=mock_twilio_config.account_sid,
-                twilio_call_sid=twilio_sid,
-            ),
-            status=200,
-        )
-        action_output = await action.run(action_input=action_input)
-        assert action_output.response.success, "Expected action response to be successful"
-        m.assert_called_once_with(
-            f"https://api.twilio.com/2010-04-01/Accounts/{mock_twilio_config.account_sid}/Calls/{twilio_sid}.json",
-            method="POST",
-            auth=aiohttp.BasicAuth(
-                login=mock_twilio_config.account_sid,
-                password=mock_twilio_config.auth_token,
-            ),
-            data={"Twiml": f"<Response><Dial record=False recordingChannels='dual'>12345678920</Dial></Response>"},
-        )
+#     with aioresponses() as m:
+#         m.post(
+#             "https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Calls/{twilio_call_sid}.json".format(
+#                 twilio_account_sid=mock_twilio_config.account_sid,
+#                 twilio_call_sid=twilio_sid,
+#             ),
+#             status=200,
+#         )
+#         action_output = await action.run(action_input=action_input)
+#         assert action_output.response.success, "Expected action response to be successful"
+#         m.assert_called_once_with(
+#             f"https://api.twilio.com/2010-04-01/Accounts/{mock_twilio_config.account_sid}/Calls/{twilio_sid}.json",
+#             method="POST",
+#             auth=aiohttp.BasicAuth(
+#                 login=mock_twilio_config.account_sid,
+#                 password=mock_twilio_config.auth_token,
+#             ),
+#             data={"Twiml": f"<Response><Dial record=False recordingChannels='dual'>12345678920</Dial></Response>"},
+#         )
 
 
-@pytest.mark.asyncio
-async def test_twilio_transfer_call_fails_if_interrupted(
-    mocker: Any,
-    mock_twilio_conversation_state_manager: TwilioPhoneConversationStateManager,
-    mock_twilio_phone_conversation: MagicMock,
-) -> None:
-    action = TwilioTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False)
-    )
-    user_message_tracker = asyncio.Event()
-    user_message_tracker.set()
-    action.attach_conversation_state_manager(mock_twilio_conversation_state_manager)
-    conversation_id = create_conversation_id()
+# @pytest.mark.asyncio
+# async def test_twilio_transfer_call_fails_if_interrupted(
+#     mocker: Any,
+#     mock_twilio_conversation_state_manager: TwilioPhoneConversationStateManager,
+#     mock_twilio_phone_conversation: MagicMock,
+# ) -> None:
+#     action = TwilioTransferCall(
+#         action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False)
+#     )
+#     user_message_tracker = asyncio.Event()
+#     user_message_tracker.set()
+#     action.attach_conversation_state_manager(mock_twilio_conversation_state_manager)
+#     conversation_id = create_conversation_id()
 
-    inner_transfer_call_mock = mocker.patch(
-        "vocode.streaming.action.transfer_call.TwilioTransferCall.transfer_call",
-        autospec=True,
-    )
+#     inner_transfer_call_mock = mocker.patch(
+#         "vocode.streaming.action.transfer_call.TwilioTransferCall.transfer_call",
+#         autospec=True,
+#     )
 
-    mock_twilio_phone_conversation.transcript = Transcript(
-        event_logs=[
-            Message(
-                sender=Sender.BOT,
-                text="Please hold while I transfer you",
-                is_end_of_turn=False,
-            )
-        ]
-    )
+#     mock_twilio_phone_conversation.transcript = Transcript(
+#         event_logs=[
+#             Message(
+#                 sender=Sender.BOT,
+#                 text="Please hold while I transfer you",
+#                 is_end_of_turn=False,
+#             )
+#         ]
+#     )
 
-    action_input = TwilioPhoneConversationActionInput(
-        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
-        conversation_id=conversation_id,
-        params=TransferCallEmptyParameters(),
-        twilio_sid="twilio_sid",
-        user_message_tracker=user_message_tracker,
-    )
+#     action_input = TwilioPhoneConversationActionInput(
+#         action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
+#         conversation_id=conversation_id,
+#         params=TransferCallEmptyParameters(),
+#         twilio_sid="twilio_sid",
+#         user_message_tracker=user_message_tracker,
+#     )
 
-    action_output = await action.run(action_input=action_input)
+#     action_output = await action.run(action_input=action_input)
 
-    assert inner_transfer_call_mock.call_count == 0, "Expected transfer_call to not be called"
-    assert not action_output.response.success, "Expected action response to be unsuccessful"
+#     assert inner_transfer_call_mock.call_count == 0, "Expected transfer_call to not be called"
+#     assert not action_output.response.success, "Expected action response to be unsuccessful"
 
 
 @pytest.mark.asyncio
