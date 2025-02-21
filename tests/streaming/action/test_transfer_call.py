@@ -119,7 +119,7 @@ async def test_twilio_transfer_call_succeeds(
                 login=mock_twilio_config.account_sid,
                 password=mock_twilio_config.auth_token,
             ),
-            data={"Twiml": f"<Response><Dial>{TRANSFER_PHONE_NUMBER}</Dial></Response>"},
+            data={"Twiml": f"<Response><Dial record=False recordingChannels='dual'>12345678920</Dial></Response>"},
         )
 
 
@@ -153,7 +153,7 @@ async def test_twilio_transfer_call_fails_if_interrupted(
     )
 
     action_input = TwilioPhoneConversationActionInput(
-        action_config=TransferCallVocodeActionConfig(phone_number=TRANSFER_PHONE_NUMBER,record=False),
+        action_config=TransferCallVocodeActionConfig(phone_number="12345678920",record=False),
         conversation_id=conversation_id,
         params=TransferCallEmptyParameters(),
         twilio_sid="twilio_sid",
