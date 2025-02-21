@@ -1,19 +1,18 @@
 import abc
 import asyncio
-
 from functools import partial
-from typing import Dict, List, Optional
+from typing import List, Optional
 
+from fastapi import APIRouter, Form, Request, Response
 import httpx
-from fastapi import APIRouter, BackgroundTasks, Form, Request, Response
 from loguru import logger
 from pydantic.v1 import BaseModel, Field
 
 from vocode.streaming.agent.abstract_factory import AbstractAgentFactory
 from vocode.streaming.agent.default_factory import DefaultAgentFactory
-from vocode.streaming.models.agent import AgentConfig, ChatGPTAgentConfig
+from vocode.streaming.models.agent import AgentConfig
 from vocode.streaming.models.events import RecordingEvent
-from vocode.streaming.models.synthesizer import SynthesizerConfig  
+from vocode.streaming.models.synthesizer import SynthesizerConfig
 from vocode.streaming.models.telephony import (
     TwilioCallConfig,
     TwilioConfig,
@@ -33,9 +32,7 @@ from vocode.streaming.transcriber.abstract_factory import AbstractTranscriberFac
 from vocode.streaming.transcriber.default_factory import DefaultTranscriberFactory
 from vocode.streaming.utils import create_conversation_id
 from vocode.streaming.utils.events_manager import EventsManager
-from vocode.streaming.models.message import BaseMessage
-from vocode.streaming.telephony.conversation.outbound_call import OutboundCall  # Corrected import
-import os
+
 
 
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
@@ -113,15 +110,15 @@ class TelephonyServer:
             f"Set up recordings endpoint at https://{self.base_url}/recordings/{{conversation_id}}"
         )
 
-        # Register the /make_call endpoint using partial to bind 'self'
-        self.router.add_api_route(
-            "/make_call",
-            partial(self.make_call),  # Bind 'self' using partial
-            methods=["POST"],
-        )
-        logger.info(
-            f"Set up make_call endpoint at https://{self.base_url}/make_call"
-        )
+        # # Register the /make_call endpoint using partial to bind 'self'
+        # self.router.add_api_route(
+        #     "/make_call",
+        #     partial(self.make_call),  # Bind 'self' using partial
+        #     methods=["POST"],
+        # )
+        # logger.info(
+        #     f"Set up make_call endpoint at https://{self.base_url}/make_call"
+        # )
 
     def events(self, request: Request):
         return Response()
@@ -134,45 +131,45 @@ class TelephonyServer:
             )
         return Response()
 
-    async def make_call(
-        self,
-        request: Request,
-        background_tasks: BackgroundTasks
-    ):
-        try:
-            data = await request.json()
-            to_phone = data["to_phone"]
-            flag = data["flag"]
-        except (ValueError, KeyError) as e:
-            logger.error(f"Invalid request body: {e}")
-            return Response(status_code=400, content="Invalid request body. 'to_phone' and 'flag' are required.")
+    # async def make_call(
+    #     self,
+    #     request: Request,
+    #     background_tasks: BackgroundTasks
+    # ):
+    #     try:
+    #         data = await request.json()
+    #         to_phone = data["to_phone"]
+    #         flag = data["flag"]
+    #     except (ValueError, KeyError) as e:
+    #         logger.error(f"Invalid request body: {e}")
+    #         return Response(status_code=400, content="Invalid request body. 'to_phone' and 'flag' are required.")
 
-        # Retrieve the corresponding agent_config based on the flag
-        agent_config = self.outbound_call_configs.agent_configs.get(flag)
-        if not agent_config:
-            logger.error(f"Invalid or missing flag provided: {flag}")
-            return Response(status_code=400, content="Invalid or missing flag provided.")
+    #     # Retrieve the corresponding agent_config based on the flag
+    #     agent_config = self.outbound_call_configs.agent_configs.get(flag)
+    #     if not agent_config:
+    #         logger.error(f"Invalid or missing flag provided: {flag}")
+    #         return Response(status_code=400, content="Invalid or missing flag provided.")
 
-        # Create an instance of OutboundCall with the retrieved agent_config
-        outbound_call = OutboundCall(
-            base_url=self.base_url,
-            to_phone=to_phone,
-            from_phone=os.environ["TWILIO_FROM_PHONE"],  # Ensure this env variable is set
-            config_manager=self.config_manager,
-            agent_config=agent_config,
-            telephony_config=TwilioConfig(
-                account_sid=os.environ["TWILIO_ACCOUNT_SID"],
-                auth_token=os.environ["TWILIO_AUTH_TOKEN"],
-            ),
-            synthesizer_config=self.outbound_synthesizer_config,
-        )
+    #     # Create an instance of OutboundCall with the retrieved agent_config
+    #     outbound_call = OutboundCall(
+    #         base_url=self.base_url,
+    #         to_phone=to_phone,
+    #         from_phone=os.environ["TWILIO_FROM_PHONE"],  # Ensure this env variable is set
+    #         config_manager=self.config_manager,
+    #         agent_config=agent_config,
+    #         telephony_config=TwilioConfig(
+    #             account_sid=os.environ["TWILIO_ACCOUNT_SID"],
+    #             auth_token=os.environ["TWILIO_AUTH_TOKEN"],
+    #         ),
+    #         synthesizer_config=self.outbound_synthesizer_config,
+    #     )
 
-        # Start the outbound call in the background
-        background_tasks.add_task(outbound_call.start)
+    #     # Start the outbound call in the background
+    #     background_tasks.add_task(outbound_call.start)
 
-        logger.info(f"Outbound call initiated to {to_phone} with flag {flag}")
+    #     logger.info(f"Outbound call initiated to {to_phone} with flag {flag}")
 
-        return {"status": "Outbound call initiated."}
+    #     return {"status": "Outbound call initiated."}
     
     async def start_twilio_inbound_recording(
             self, twilio_sid: str, auth_token: str, conversation_id: str

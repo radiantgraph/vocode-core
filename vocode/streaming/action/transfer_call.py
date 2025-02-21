@@ -38,7 +38,7 @@ class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_c
         None, description="The phone number to transfer the call to"
     )
     record : Optional[bool] = Field(
-        True, description="Whether to record the call or not"
+        None, description="Whether to record the call or not"
     )
 
     def get_phone_number(self, input: ActionInput) -> str:
@@ -58,7 +58,8 @@ class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_c
             logger.info("Bool value obtained from input parameters")
             return input.params.record
         elif isinstance(input.params, TransferCallEmptyParameters):
-            assert self.record, "phone number must be set"
+            assert self.record, "Record value must be set"
+            logger.info("Bool value obtained from config")
             return self.record
         else:
             logger.error("Invalid input params type")
