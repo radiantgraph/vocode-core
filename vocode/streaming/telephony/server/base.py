@@ -3,8 +3,8 @@ import asyncio
 from functools import partial
 from typing import List, Optional
 
-from fastapi import APIRouter, Form, Request, Response
 import httpx
+from fastapi import APIRouter, Form, Request, Response
 from loguru import logger
 from pydantic.v1 import BaseModel, Field
 
