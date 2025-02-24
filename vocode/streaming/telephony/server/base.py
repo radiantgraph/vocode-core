@@ -34,6 +34,7 @@ from vocode.streaming.transcriber.default_factory import DefaultTranscriberFacto
 from vocode.streaming.utils import create_conversation_id
 from vocode.streaming.utils.events_manager import EventsManager
 
+
 class AbstractInboundCallConfig(BaseModel, abc.ABC):
     url: str
     agent_config: AgentConfig
@@ -118,7 +119,6 @@ class TelephonyServer:
             )
         return Response()
 
-
     # async def make_call(
     #     self,
     #     request: Request,
@@ -155,18 +155,21 @@ class TelephonyServer:
     #     # Start the outbound call in the background
     #     background_tasks.add_task(outbound_call.start)
 
-
     #     logger.info(f"Outbound call initiated to {to_phone} with flag {flag}")
 
     #     return {"status": "Outbound call initiated."}
-    
+
     async def start_twilio_inbound_recording(
-            self, twilio_sid: str, auth_token: str, conversation_id: str
+        self, twilio_sid: str, auth_token: str, conversation_id: str
     ) -> None:
-        url: str = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Calls/{conversation_id}/Recordings.json"
+        url: str = (
+            f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Calls/{conversation_id}/Recordings.json"
+        )
 
         async with httpx.AsyncClient() as client:
-            response: httpx.Response = await client.post(url, data={}, auth=(twilio_sid, auth_token))
+            response: httpx.Response = await client.post(
+                url, data={}, auth=(twilio_sid, auth_token)
+            )
 
         if response.status_code != 201:
             logger.warning(f"Failed to start recording: {response.text}")
@@ -183,8 +186,7 @@ class TelephonyServer:
             twilio_from: str = Form(alias="From"),
             twilio_to: str = Form(alias="To"),
         ) -> Response:
-            
-            
+
             call_config = TwilioCallConfig(
                 transcriber_config=inbound_call_config.transcriber_config
                 or TwilioCallConfig.default_transcriber_config(),
@@ -206,11 +208,11 @@ class TelephonyServer:
             async def delay_start_recording() -> None:
                 await asyncio.sleep(1)
                 await self.start_twilio_inbound_recording(
-                    twilio_sid = twilio_config.account_sid,
-                    auth_token = twilio_config.auth_token,
-                    conversation_id = twilio_sid
+                    twilio_sid=twilio_config.account_sid,
+                    auth_token=twilio_config.auth_token,
+                    conversation_id=twilio_sid,
                 )
-            
+
             if twilio_config.record:
                 asyncio.create_task(coro=delay_start_recording())
 

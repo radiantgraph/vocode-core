@@ -174,7 +174,9 @@ async def test_vonage_transfer_call_inbound(
 ) -> None:
     transfer_phone_number = "12345678920"
     action = VonageTransferCall(
-        action_config=TransferCallVocodeActionConfig(phone_number=transfer_phone_number,record=False),
+        action_config=TransferCallVocodeActionConfig(
+            phone_number=transfer_phone_number, record=False
+        ),
     )
 
     mocker.patch("vonage.Client._create_jwt_auth_string", return_value=b"asdf")
@@ -200,7 +202,9 @@ async def test_vonage_transfer_call_inbound(
         )
 
         action_input = VonagePhoneConversationActionInput(
-            action_config=TransferCallVocodeActionConfig(phone_number=transfer_phone_number,record=False),  
+            action_config=TransferCallVocodeActionConfig(
+                phone_number=transfer_phone_number, record=False
+            ),
             conversation_id=conversation_id,
             params=TransferCallEmptyParameters(),
             vonage_uuid=str(vonage_uuid),

@@ -23,7 +23,7 @@ class TransferCallEmptyParameters(BaseModel):
 
 class TransferCallRequiredParameters(BaseModel):
     phone_number: str = Field(..., description="The phone number to transfer the call to")
-    record : bool = Field(True, description="Whether to record the call or not")
+    record: bool = Field(True, description="Whether to record the call or not")
 
 
 TransferCallParameters = Union[TransferCallEmptyParameters, TransferCallRequiredParameters]
@@ -34,13 +34,11 @@ class TransferCallResponse(BaseModel):
 
 
 class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_call"):  # type: ignore
-    
+
     phone_number: Optional[str] = Field(
         None, description="The phone number to transfer the call to"
     )
-    record : Optional[bool] = Field(
-        None, description="Whether to record the call or not"
-    )
+    record: Optional[bool] = Field(None, description="Whether to record the call or not")
 
     def get_phone_number(self, input: ActionInput) -> str:
         logger.info("Getting phone number for call transfer")
@@ -52,7 +50,7 @@ class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_c
             return self.phone_number
         else:
             logger.error("Invalid input params type")
-            return 'Invalid Input params type'
+            return "Invalid Input params type"
 
     def if_record(self, input: ActionInput) -> bool:
         logger.info("Getting bool value for recording the call")
@@ -123,8 +121,8 @@ class TwilioTransferCall(
         )
 
         twiml_data = "<Response><Dial record='{record}' recordingChannels='dual'>{to_phone}</Dial></Response>".format(
-                                                                                        record=record,  # Change to "false" if you don’t want to record
-                                                                                        to_phone=to_phone)
+            record=record, to_phone=to_phone  # Change to "false" if you don’t want to record
+        )
 
         payload = {"Twiml": twiml_data}
 
