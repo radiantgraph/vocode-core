@@ -23,6 +23,7 @@ class TransferCallEmptyParameters(BaseModel):
 
 class TransferCallRequiredParameters(BaseModel):
     phone_number: str = Field(..., description="The phone number to transfer the call to")
+    record: bool = Field(True, description="Whether to record the call or not")
 
 
 TransferCallParameters = Union[TransferCallEmptyParameters, TransferCallRequiredParameters]
@@ -33,9 +34,11 @@ class TransferCallResponse(BaseModel):
 
 
 class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_call"):  # type: ignore
+
     phone_number: Optional[str] = Field(
         None, description="The phone number to transfer the call to"
     )
+    record: Optional[bool] = Field(None, description="Whether to record the call or not")
 
     def get_phone_number(self, input: ActionInput) -> str:
         logger.info("Getting phone number for call transfer")
@@ -45,6 +48,19 @@ class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_c
         elif isinstance(input.params, TransferCallEmptyParameters):
             assert self.phone_number, "phone number must be set"
             return self.phone_number
+        else:
+            logger.error("Invalid input params type")
+            return "Invalid Input params type"
+
+    def if_record(self, input: ActionInput) -> bool:
+        logger.info("Getting bool value for recording the call")
+        if isinstance(input.params, TransferCallRequiredParameters):
+            logger.info("Bool value obtained from input parameters")
+            return input.params.record
+        elif isinstance(input.params, TransferCallEmptyParameters):
+            assert self.record, "Record value must be set"
+            logger.info("Bool value obtained from config")
+            return self.record
         else:
             logger.error("Invalid input params type")
             raise TypeError("Invalid input params type")
@@ -95,7 +111,7 @@ class TwilioTransferCall(
             should_respond=SHOULD_RESPOND,
         )
 
-    async def transfer_call(self, twilio_call_sid: str, to_phone: str):
+    async def transfer_call(self, twilio_call_sid: str, to_phone: str, record: bool = True):
 
         twilio_client = self.conversation_state_manager.create_twilio_client()
 
@@ -104,7 +120,9 @@ class TwilioTransferCall(
             twilio_call_sid=twilio_call_sid,
         )
 
-        twiml_data = "<Response><Dial>{to_phone}</Dial></Response>".format(to_phone=to_phone)
+        twiml_data = "<Response><Dial record='{record}' recordingChannels='dual'>{to_phone}</Dial></Response>".format(
+            record=record, to_phone=to_phone  # Change to "false" if you don’t want to record
+        )
 
         payload = {"Twiml": twiml_data}
 
@@ -126,7 +144,9 @@ class TwilioTransferCall(
 
         phone_number = self.action_config.get_phone_number(action_input)
         sanitized_phone_number = sanitize_phone_number(phone_number)
-        logger.info("Sanitized phone number: %s", sanitized_phone_number)
+        record = self.action_config.if_record(action_input)
+        logger.info(f"Sanitized phone number: {sanitized_phone_number}")
+        logger.info(f"Record Call T/F: {record}")
 
         if action_input.user_message_tracker is not None:
             await action_input.user_message_tracker.wait()
@@ -141,7 +161,8 @@ class TwilioTransferCall(
             )
 
         logger.info(f"Transferring call to {sanitized_phone_number}")
-        await self.transfer_call(twilio_call_sid, sanitized_phone_number)
+
+        await self.transfer_call(twilio_call_sid, sanitized_phone_number, record)
 
         logger.info("Call transfer successfull")
         return ActionOutput(
