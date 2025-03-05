@@ -54,8 +54,14 @@ class TwilioClient(AbstractTelephonyClient):
             "From": f"+{from_phone}",
             **(telephony_params or {}),
         }
+
         if digits:
             data["SendDigits"] = digits
+        
+        if record:
+            data["Record"] = "true"  # Enables recording
+            data["RecordingChannels"] = "dual"  # Ensures separate caller & receiver channels
+
         async with AsyncRequestor().get_session().post(
             f"https://api.twilio.com/2010-04-01/Accounts/{self.twilio_config.account_sid}/Calls.json",
             auth=self.auth,
