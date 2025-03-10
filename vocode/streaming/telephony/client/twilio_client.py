@@ -57,7 +57,7 @@ class TwilioClient(AbstractTelephonyClient):
 
         if digits:
             data["SendDigits"] = digits
-        
+
         if record:
             data["Record"] = "true"  # Enables recording
             data["RecordingChannels"] = "dual"  # Ensures separate caller & receiver channels
