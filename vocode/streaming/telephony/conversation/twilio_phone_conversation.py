@@ -90,16 +90,23 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
     async def attach_ws_and_start(self, ws: WebSocket):
         super().attach_ws(ws)
 
-        await self._wait_for_twilio_start(ws)
-        await self.start()
-        self.events_manager.publish_event(
-            PhoneCallConnectedEvent(
-                conversation_id=self.id,
-                to_phone_number=self.to_phone,
-                from_phone_number=self.from_phone,
-                twilio_sid=self.twilio_sid,
+        twilio_call_ref = self.telephony_client.twilio_client.calls(self.twilio_sid)
+        twilio_call = twilio_call_ref.fetch()
+
+        if twilio_call.answered_by in ("machine_start", "fax"):
+            logger.info(f"Call answered by {twilio_call.answered_by}")
+            twilio_call.update(status="no-answer")
+        else:
+            await self._wait_for_twilio_start(ws)
+            await self.start()
+            self.events_manager.publish_event(
+                PhoneCallConnectedEvent(
+                    conversation_id=self.id,
+                    to_phone_number=self.to_phone,
+                    from_phone_number=self.from_phone,
+                    twilio_sid=self.twilio_sid,
+                )
             )
-        )
         while self.is_active():
             message = await ws.receive_text()
             response = await self._handle_ws_message(message)
