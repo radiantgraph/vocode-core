@@ -92,8 +92,10 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
 
         twilio_call_ref = self.telephony_client.twilio_client.calls(self.twilio_sid)
         twilio_call = twilio_call_ref.fetch()
+        logger.info(f"testing !!!!!!! !!!!!! !!!!!!!")
 
         if twilio_call.answered_by in ("machine_start", "fax"):
+            logger.info(f"!!!!!!! MACHINE DETECTED   !!!!!!!")
             logger.info(f"Call answered by {twilio_call.answered_by}")
             twilio_call.update(status="no-answer")
         else:
