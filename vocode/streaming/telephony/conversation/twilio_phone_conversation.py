@@ -91,7 +91,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         answered_by = await self.telephony_client.get_call_status(self.twilio_sid)
 
         if answered_by and answered_by.startswith("machine"):
-            logger.info(f"Machine detected in call: {self.twilio_sid}")
+            logger.info(f"Machine detected in call !!: {self.twilio_sid}")
         else:
             logger.info(f"Call answered by: {answered_by}")
 
