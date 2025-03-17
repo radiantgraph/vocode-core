@@ -83,7 +83,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         )
         self.twilio_sid = twilio_sid
         self.record_call = record_call
-    
+
     async def monitor_call_status(self):
         """
         Monitors the call and checks the AnsweredBy status.
@@ -99,7 +99,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         return TwilioPhoneConversationStateManager(self)
 
     async def attach_ws_and_start(self, ws: WebSocket):
-        
+
         super().attach_ws(ws)
 
         await self._wait_for_twilio_start(ws)
@@ -107,7 +107,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
 
         # Fetch and log AnsweredBy parameter
         await self.monitor_call_status()
-    
+
         self.events_manager.publish_event(
             PhoneCallConnectedEvent(
                 conversation_id=self.id,
