@@ -90,7 +90,6 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
     async def attach_ws_and_start(self, ws: WebSocket):
         super().attach_ws(ws)
 
-
         await self._wait_for_twilio_start(ws)
         await self.start()
         self.events_manager.publish_event(
