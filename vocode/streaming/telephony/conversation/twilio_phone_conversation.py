@@ -83,15 +83,31 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         )
         self.twilio_sid = twilio_sid
         self.record_call = record_call
+    
+    async def monitor_call_status(self):
+        """
+        Monitors the call and checks the AnsweredBy status.
+        """
+        answered_by = await self.telephony_client.get_call_status(self.twilio_sid)
+
+        if answered_by and answered_by.startswith("machine"):
+            logger.info(f"Machine detected in call: {self.twilio_sid}")
+        else:
+            logger.info(f"Call answered by: {answered_by}")
 
     def create_state_manager(self) -> TwilioPhoneConversationStateManager:
         return TwilioPhoneConversationStateManager(self)
 
     async def attach_ws_and_start(self, ws: WebSocket):
+        
         super().attach_ws(ws)
 
         await self._wait_for_twilio_start(ws)
         await self.start()
+
+        # Fetch and log AnsweredBy parameter
+        await self.monitor_call_status()
+    
         self.events_manager.publish_event(
             PhoneCallConnectedEvent(
                 conversation_id=self.id,
@@ -136,7 +152,4 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
             logger.debug(f"Media WS: Received event 'stop': {message}")
             logger.debug("Stopping...")
             return TwilioPhoneConversationWebsocketAction.CLOSE_WEBSOCKET
-        elif "AnsweredBy" in data:
-            answered_by = data["AnsweredBy"]
-            logger.info(f"Call Answered By: {answered_by}")
         return None
