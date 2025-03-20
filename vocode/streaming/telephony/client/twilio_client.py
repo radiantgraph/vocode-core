@@ -62,11 +62,11 @@ class TwilioClient(AbstractTelephonyClient):
             data["Record"] = "true"  # Enables recording
             data["RecordingChannels"] = "dual"  # Ensures separate caller & receiver channels
 
-        data["MachineDetection"] = (
-            "Enable"  # Initiates AMD to identify if a human, machine, or fax answers
-        )
-        data["AsyncAmd"] = "true"  # Performs AMD asynchronously to minimize call delays
-        data["AsyncAmdStatusCallback"]= 'https://voice-dev2.dev.radiantgraph.io/amd_callback'
+        # data["MachineDetection"] = (
+        #     "Enable"  # Initiates AMD to identify if a human, machine, or fax answers
+        # )
+        # data["AsyncAmd"] = "true"  # Performs AMD asynchronously to minimize call delays
+        # data["AsyncAmdStatusCallback"]= 'https://voice-dev2.dev.radiantgraph.io/amd_callback'
 
         async with AsyncRequestor().get_session().post(
             f"https://api.twilio.com/2010-04-01/Accounts/{self.twilio_config.account_sid}/Calls.json",
@@ -87,28 +87,6 @@ class TwilioClient(AbstractTelephonyClient):
                     )
             response = await response.json()
             return response["sid"]
-
-    async def get_call_status(self, call_sid: str):
-        """
-        Fetch call details from Twilio, including AnsweredBy parameter.
-        """
-        async with AsyncRequestor().get_session().get(
-            f"https://api.twilio.com/2010-04-01/Accounts/{self.twilio_config.account_sid}/Calls/{call_sid}.json",
-            auth=self.auth,
-        ) as response:
-            if response.status != 200:
-                logger.warning(f"Failed to fetch call status: {response.status} {response.reason}")
-                return None
-
-            call_data = await response.json()
-            answered_by = call_data.get("AnsweredBy", "unknown")
-
-            if answered_by.startswith("machine"):
-                logger.info(f"Machine detected: {answered_by}")
-            else:
-                logger.info(f"Call answered by: {answered_by}")
-
-            return answered_by
 
     def get_connection_twiml(self, conversation_id: str):
         return get_connection_twiml(call_id=conversation_id, base_url=self.base_url)
