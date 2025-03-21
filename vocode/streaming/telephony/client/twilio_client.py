@@ -62,12 +62,6 @@ class TwilioClient(AbstractTelephonyClient):
             data["Record"] = "true"  # Enables recording
             data["RecordingChannels"] = "dual"  # Ensures separate caller & receiver channels
 
-        # data["MachineDetection"] = (
-        #     "Enable"  # Initiates AMD to identify if a human, machine, or fax answers
-        # )
-        # data["AsyncAmd"] = "true"  # Performs AMD asynchronously to minimize call delays
-        # data["AsyncAmdStatusCallback"]= 'https://voice-dev2.dev.radiantgraph.io/amd_callback'
-
         async with AsyncRequestor().get_session().post(
             f"https://api.twilio.com/2010-04-01/Accounts/{self.twilio_config.account_sid}/Calls.json",
             auth=self.auth,
