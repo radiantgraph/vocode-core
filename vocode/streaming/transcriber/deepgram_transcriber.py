@@ -165,10 +165,12 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                 ),
                 1000,
             )  # Deepgram recommends using at least 1000ms since the tick period is ~1s
-            
+
+        conf ={}
         conf = self.transcriber_config.extra_config
-        extra_params.update(conf)
-        url_params.update(extra_params)
+        combined = {**extra_params, **conf}
+        logger.debug(f"Deepgram extra params: {combined}")
+        url_params.update(combined)
         return f"{self.ws_url}/v1/listen?{urlencode(url_params, doseq=True)}"
 
     async def _run_loop(self):
