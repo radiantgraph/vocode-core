@@ -166,8 +166,10 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
                 1000,
             )  # Deepgram recommends using at least 1000ms since the tick period is ~1s
 
+        print(f"extra_params: {self.transcriber_config.extra_config}")
+
         # todo : add functionality to pass extra config
-        extra_params['smart_format'] = 'true'   # Enable Smart Formatting
+        extra_params['smart_format'] = 'true'   
         extra_params['diarize'] = 'true'
         extra_params['dictation'] = 'true'
         extra_params['punctuation'] = 'true'
