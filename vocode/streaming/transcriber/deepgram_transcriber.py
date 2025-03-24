@@ -171,6 +171,8 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
 
         url_params.update(extra_params)
 
+        logger.debug(f"Deepgram URL params: {url_params}")
+
         return f"{self.ws_url}/v1/listen?{urlencode(url_params, doseq=True)}"
 
     async def _run_loop(self):
