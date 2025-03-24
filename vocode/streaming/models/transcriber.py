@@ -125,6 +125,7 @@ class DeepgramTranscriberConfig(TranscriberConfig, type=TranscriberType.DEEPGRAM
     api_key: Optional[str] = None
     on_prem: bool = False
     ws_url: str = DEEPGRAM_API_WS_URL
+    extra_config: Optional[dict] = None  # todo: add functionality to pass extra config
 
 
 class GladiaTranscriberConfig(TranscriberConfig, type=TranscriberType.GLADIA.value):  # type: ignore

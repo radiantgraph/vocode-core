@@ -88,10 +88,12 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         return TwilioPhoneConversationStateManager(self)
 
     async def attach_ws_and_start(self, ws: WebSocket):
+
         super().attach_ws(ws)
 
         await self._wait_for_twilio_start(ws)
         await self.start()
+
         self.events_manager.publish_event(
             PhoneCallConnectedEvent(
                 conversation_id=self.id,
@@ -100,6 +102,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
                 twilio_sid=self.twilio_sid,
             )
         )
+
         while self.is_active():
             message = await ws.receive_text()
             response = await self._handle_ws_message(message)
