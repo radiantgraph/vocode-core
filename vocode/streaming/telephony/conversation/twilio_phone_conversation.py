@@ -102,7 +102,7 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
                 twilio_sid=self.twilio_sid,
             )
         )
-        
+
         while self.is_active():
             message = await ws.receive_text()
             response = await self._handle_ws_message(message)
