@@ -455,8 +455,8 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                 logger.debug(
                     f" Streaming_test Got agent response: {agent_response_message.message}"
                 )
-                agent_response_message.message = BaseMessage(text=remove_markdown(agent_response_message.message))
-
+                #agent_response_message.message = BaseMessage(text=remove_markdown(agent_response_message.message))
+                agent_response_message.message = remove_markdown(agent_response_message.message)
 
                 if self.conversation.filler_audio_worker is not None:
                     if self.conversation.filler_audio_worker.interrupt_current_filler_audio():
