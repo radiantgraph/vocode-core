@@ -107,6 +107,35 @@ BACKCHANNEL_PATTERNS = [
 ]
 LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
+# Define the `remove_markdown` function here
+def remove_markdown(text):
+    # Remove code blocks (```code```)
+    text = re.sub(r'```[\s\S]*?```', '', text)
+    # Remove inline code (`code`)
+    text = re.sub(r'`[^`]*`', '', text)
+    # Remove bold and italic (***text*** or ___text___)
+    text = re.sub(r'(\*\*\*|___)(.*?)\1', r'\2', text)
+    # Remove bold (**text** or __text__)
+    text = re.sub(r'(\*\*|__)(.*?)\1', r'\2', text)
+    # Remove italic (*text* or _text_)
+    text = re.sub(r'(\*|_)(.*?)\1', r'\2', text)
+    # Remove strikethrough (~~text~~)
+    text = re.sub(r'~~(.*?)~~', r'\1', text)
+    # Remove images (![alt text](image_url))
+    text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
+    # Remove links but keep the link text ([text](url) -> text)
+    text = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', text)
+    # Remove blockquotes (> text)
+    text = re.sub(r'^>\s+', '', text, flags=re.MULTILINE)
+    # Remove headings (# Heading)
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    # Remove horizontal rules (---, ***, ___)
+    text = re.sub(r'^(-{3,}|_{3,}|\*{3,})$', '', text, flags=re.MULTILINE)
+    # Remove unordered list markers (-, *, +)
+    text = re.sub(r'^\s*[-+*]\s+', '', text, flags=re.MULTILINE)
+    # Remove remaining markdown special characters
+    text = re.sub(r'[\\*_`~]', '', text)
+    return text.strip()
 
 class StreamingConversation(AudioPipeline[OutputDeviceType]):
     class QueueingInterruptibleEventFactory(InterruptibleEventFactory):
@@ -423,6 +452,11 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                     return
 
                 agent_response_message = typing.cast(AgentResponseMessage, agent_response)
+                logger.debug(
+                    f" Streaming_test Got agent response: {agent_response_message.message}"
+                )
+                agent_response_message.message = BaseMessage(text=remove_markdown(agent_response_message.message))
+
 
                 if self.conversation.filler_audio_worker is not None:
                     if self.conversation.filler_audio_worker.interrupt_current_filler_audio():
