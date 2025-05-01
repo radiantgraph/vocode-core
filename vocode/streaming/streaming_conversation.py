@@ -109,8 +109,9 @@ LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
 # Define the `remove_markdown` function here
 def remove_markdown(text):
-    # Remove code blocks (```code```)
-    text = re.sub(r'```[\s\S]*?```', '', text)
+    logger.debug(
+                    f" Streaming_test cleaned agent response: ENTERED {text}"
+                )
     # Remove inline code (`code`)
     text = re.sub(r'`[^`]*`', '', text)
     # Remove bold and italic (***text*** or ___text___)
