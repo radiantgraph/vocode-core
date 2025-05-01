@@ -440,9 +440,11 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                 logger.debug(
                     f" Streaming_test type agent response: {type(agent_response_message.message)} "
                 )
+
+                test = remove_markdown(agent_response_message.message)
                 
                 logger.debug(
-                    f" Streaming_test cleaned agent response: {remove_markdown(agent_response_message.message)} "
+                    f" Streaming_test cleaned agent response: {test} "
                 )
 
                 if self.conversation.filler_audio_worker is not None:
