@@ -433,6 +433,7 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                     return
 
                 agent_response_message = typing.cast(AgentResponseMessage, agent_response)
+
                 logger.debug(
                     f" Streaming_test Got agent response: {agent_response_message.message} "
                 )
@@ -441,10 +442,11 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                     f" Streaming_test type agent response: {type(agent_response_message.message)} "
                 )
 
-                test = remove_markdown(agent_response_message.message)
+                if hasattr(agent_response_message.message, 'text'):
+                    test = remove_markdown(agent_response_message.message.text) 
                 
                 logger.debug(
-                    f" Streaming_test cleaned agent response: {test} "
+                    f"Streaming_test cleaned agent response: {test}"
                 )
 
                 if self.conversation.filler_audio_worker is not None:
