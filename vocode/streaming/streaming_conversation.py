@@ -112,30 +112,10 @@ def remove_markdown(text):
     logger.debug(
                     f" Streaming_test cleaned agent response: ENTERED {text}"
                 )
-    # Remove inline code (`code`)
-    text = re.sub(r'`[^`]*`', '', text)
-    # Remove bold and italic (***text*** or ___text___)
-    text = re.sub(r'(\*\*\*|___)(.*?)\1', r'\2', text)
-    # Remove bold (**text** or __text__)
-    text = re.sub(r'(\*\*|__)(.*?)\1', r'\2', text)
-    # Remove italic (*text* or _text_)
-    text = re.sub(r'(\*|_)(.*?)\1', r'\2', text)
-    # Remove strikethrough (~~text~~)
-    text = re.sub(r'~~(.*?)~~', r'\1', text)
-    # Remove images (![alt text](image_url))
-    text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
-    # Remove links but keep the link text ([text](url) -> text)
-    text = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', text)
-    # Remove blockquotes (> text)
-    text = re.sub(r'^>\s+', '', text, flags=re.MULTILINE)
-    # Remove headings (# Heading)
-    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
-    # Remove horizontal rules (---, ***, ___)
-    text = re.sub(r'^(-{3,}|_{3,}|\*{3,})$', '', text, flags=re.MULTILINE)
-    # Remove unordered list markers (-, *, +)
-    text = re.sub(r'^\s*[-+*]\s+', '', text, flags=re.MULTILINE)
-    # Remove remaining markdown special characters
-    text = re.sub(r'[\\*_`~]', '', text)
+    text = re.sub(r'\*', '', text)
+    logger.debug(
+                    f" Streaming_test completed agent response: EXIT {text}"
+                )
     return text.strip()
 
 class StreamingConversation(AudioPipeline[OutputDeviceType]):
