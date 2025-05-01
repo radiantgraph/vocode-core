@@ -112,7 +112,7 @@ def remove_markdown(text):
     logger.debug(
                     f" Streaming_test cleaned agent response: ENTERED {text}"
                 )
-    text = re.sub(r'\*', '', text)
+    text = re.sub(r'[\\*_`~]', '', text)
     logger.debug(
                     f" Streaming_test completed agent response: EXIT {text}"
                 )
@@ -443,9 +443,9 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                 )
 
                 if hasattr(agent_response_message.message, 'text'):
-                    test = remove_markdown(agent_response_message.message.text) 
+                    agent_response_message.message.text = remove_markdown(agent_response_message.message.text) 
                     logger.debug(
-                    f"Streaming_test cleaned agent response: {test}"
+                    f"Streaming_test cleaned agent response: {agent_response_message.message.text}"
                     )
 
                 if self.conversation.filler_audio_worker is not None:
