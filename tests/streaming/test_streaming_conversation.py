@@ -210,7 +210,6 @@ async def _mock_streaming_conversation_constructor(
     mocker: MockerFixture,
     interrupt_sensitivity: InterruptSensitivity = "low",
 ):
-
     streaming_conversation = create_fake_streaming_conversation(
         mocker,
         agent=create_fake_agent(

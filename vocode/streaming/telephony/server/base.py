@@ -186,7 +186,6 @@ class TelephonyServer:
             twilio_from: str = Form(alias="From"),
             twilio_to: str = Form(alias="To"),
         ) -> Response:
-
             call_config = TwilioCallConfig(
                 transcriber_config=inbound_call_config.transcriber_config
                 or TwilioCallConfig.default_transcriber_config(),

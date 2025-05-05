@@ -34,7 +34,6 @@ class TransferCallResponse(BaseModel):
 
 
 class TransferCallVocodeActionConfig(VocodeActionConfig, type="action_transfer_call"):  # type: ignore
-
     phone_number: Optional[str] = Field(
         None, description="The phone number to transfer the call to"
     )
@@ -112,7 +111,6 @@ class TwilioTransferCall(
         )
 
     async def transfer_call(self, twilio_call_sid: str, to_phone: str, record: bool = True):
-
         twilio_client = self.conversation_state_manager.create_twilio_client()
 
         url = "https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Calls/{twilio_call_sid}.json".format(

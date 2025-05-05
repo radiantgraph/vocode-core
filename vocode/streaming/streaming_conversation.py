@@ -108,6 +108,16 @@ BACKCHANNEL_PATTERNS = [
 LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
 
+# Define the `remove_markdown` function here
+def remove_markdown(text: str) -> str:
+    # Remove leading list numbers (e.g., "1. ", "2. ")
+    text = re.sub(r"^\s*\d+\.\s*", "", text, flags=re.MULTILINE)
+    # Remove markdown formatting characters
+    text = re.sub(r"[\\*_`~]", "", text)
+    logger.debug("Cleaned message for agent response")
+    return text.strip()
+
+
 class StreamingConversation(AudioPipeline[OutputDeviceType]):
     class QueueingInterruptibleEventFactory(InterruptibleEventFactory):
         def __init__(self, conversation: "StreamingConversation"):
@@ -423,6 +433,14 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                     return
 
                 agent_response_message = typing.cast(AgentResponseMessage, agent_response)
+
+                if isinstance(agent_response_message.message, BaseMessage):
+                    agent_response_message.message.text = remove_markdown(
+                        agent_response_message.message.text
+                    )
+                    logger.debug(
+                        f"Streaming_test cleaned agent response: {agent_response_message.message.text}"
+                    )
 
                 if self.conversation.filler_audio_worker is not None:
                     if self.conversation.filler_audio_worker.interrupt_current_filler_audio():
