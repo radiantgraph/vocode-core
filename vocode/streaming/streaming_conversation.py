@@ -109,8 +109,11 @@ LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
 # Define the `remove_markdown` function here
 def remove_markdown(text):
+    # Remove leading list numbers (e.g., "1. ", "2. ")
+    text = re.sub(r'^\s*\d+\.\s*', '', text, flags=re.MULTILINE)
+    # Remove markdown formatting characters
     text = re.sub(r'[\\*_`~]', '', text)
-    logger.debug(f"Cleaned message for agentresponse")
+    logger.debug("Cleaned message for agent response")
     return text.strip()
 
 class StreamingConversation(AudioPipeline[OutputDeviceType]):
