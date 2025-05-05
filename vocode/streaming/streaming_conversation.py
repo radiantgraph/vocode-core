@@ -109,7 +109,7 @@ LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
 
 # Define the `remove_markdown` function here
-def remove_markdown(text):
+def remove_markdown(text: str) -> str:
     # Remove leading list numbers (e.g., "1. ", "2. ")
     text = re.sub(r"^\s*\d+\.\s*", "", text, flags=re.MULTILINE)
     # Remove markdown formatting characters
