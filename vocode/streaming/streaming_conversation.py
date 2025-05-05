@@ -434,6 +434,9 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
 
                 #if hasattr(agent_response_message.message, 'text'):
                 if isinstance(agent_response_message.message, BaseMessage):
+                    logger.debug(
+                    f"Streaming_test befor cleaned agent response: {agent_response_message.message.text}"
+                    )
                     agent_response_message.message.text = remove_markdown(agent_response_message.message.text) 
                     logger.debug(
                     f"Streaming_test cleaned agent response: {agent_response_message.message.text}"
