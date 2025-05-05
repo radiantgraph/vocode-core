@@ -109,13 +109,8 @@ LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
 # Define the `remove_markdown` function here
 def remove_markdown(text):
-    logger.debug(
-                    f" Streaming_test cleaned agent response: ENTERED {text}"
-                )
     text = re.sub(r'[\\*_`~]', '', text)
-    logger.debug(
-                    f" Streaming_test completed agent response: EXIT {text}"
-                )
+    logger.debug(f"Cleaned message for agentresponse")
     return text.strip()
 
 class StreamingConversation(AudioPipeline[OutputDeviceType]):
@@ -434,15 +429,8 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
 
                 agent_response_message = typing.cast(AgentResponseMessage, agent_response)
 
-                logger.debug(
-                    f" Streaming_test Got agent response: {agent_response_message.message} "
-                )
-                #agent_response_message.message = BaseMessage(text=remove_markdown(agent_response_message.message))
-                logger.debug(
-                    f" Streaming_test type agent response: {type(agent_response_message.message)} "
-                )
-
-                if hasattr(agent_response_message.message, 'text'):
+                #if hasattr(agent_response_message.message, 'text'):
+                if isinstance(agent_response_message.message, BaseMessage):
                     agent_response_message.message.text = remove_markdown(agent_response_message.message.text) 
                     logger.debug(
                     f"Streaming_test cleaned agent response: {agent_response_message.message.text}"
