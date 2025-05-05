@@ -27,7 +27,6 @@ from vocode.streaming.transcriber.deepgram_transcriber import DeepgramTranscribe
 
 
 class Settings(BaseSettings):
-
     livekit_api_key: str = "ENTER_YOUR_LIVE_KIT_API_KEY"
     livekit_api_secret: str = "ENTER_YOUR_LIVE_KIT_API_SECRET"
     livekit_ws_url: str = "ENTER_YOUR_LIVE_KIT_WS_URL"

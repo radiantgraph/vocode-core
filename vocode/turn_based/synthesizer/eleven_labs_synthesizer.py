@@ -17,7 +17,6 @@ class ElevenLabsSynthesizer(BaseSynthesizer):
         similarity_boost: Optional[float] = None,
         api_key: Optional[str] = None,
     ):
-
         self.voice_id = voice_id
         self.api_key = getenv("ELEVEN_LABS_API_KEY", api_key)
 

@@ -35,9 +35,9 @@ class TwilioOutputDevice(AbstractOutputDevice):
 
         self._twilio_events_queue: asyncio.Queue[str] = asyncio.Queue()
         self._mark_message_queue: asyncio.Queue[MarkMessage] = asyncio.Queue()
-        self._unprocessed_audio_chunks_queue: asyncio.Queue[InterruptibleEvent[AudioChunk]] = (
-            asyncio.Queue()
-        )
+        self._unprocessed_audio_chunks_queue: asyncio.Queue[
+            InterruptibleEvent[AudioChunk]
+        ] = asyncio.Queue()
 
     def consume_nonblocking(self, item: InterruptibleEvent[AudioChunk]):
         if not item.is_interrupted():

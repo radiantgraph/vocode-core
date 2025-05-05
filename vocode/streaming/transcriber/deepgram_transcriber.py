@@ -549,7 +549,6 @@ class DeepgramTranscriber(BaseAsyncTranscriber[DeepgramTranscriberConfig]):
             op=CustomSentrySpans.LATENCY_OF_TRANSCRIPTION_START,
             start_timestamp=self.start_ts,
         ) as transcription_span:
-
             with sentry_create_span(
                 sentry_callable=transcription_span.start_child,
                 op=CustomSentrySpans.START_TO_CONNECTION,

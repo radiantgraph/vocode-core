@@ -320,7 +320,6 @@ class BaseSynthesizer(Generic[SynthesizerConfigType]):
     def get_message_cutoff_from_voice_speed(
         message: BaseMessage, seconds: Optional[float], words_per_minute: int = 150
     ) -> str:
-
         if seconds is None:
             return message.text
 

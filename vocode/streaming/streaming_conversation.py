@@ -107,14 +107,16 @@ BACKCHANNEL_PATTERNS = [
 ]
 LOW_INTERRUPT_SENSITIVITY_BACKCHANNEL_UTTERANCE_LENGTH_THRESHOLD = 2
 
+
 # Define the `remove_markdown` function here
 def remove_markdown(text):
     # Remove leading list numbers (e.g., "1. ", "2. ")
-    text = re.sub(r'^\s*\d+\.\s*', '', text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*\d+\.\s*", "", text, flags=re.MULTILINE)
     # Remove markdown formatting characters
-    text = re.sub(r'[\\*_`~]', '', text)
+    text = re.sub(r"[\\*_`~]", "", text)
     logger.debug("Cleaned message for agent response")
     return text.strip()
+
 
 class StreamingConversation(AudioPipeline[OutputDeviceType]):
     class QueueingInterruptibleEventFactory(InterruptibleEventFactory):
@@ -432,11 +434,12 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
 
                 agent_response_message = typing.cast(AgentResponseMessage, agent_response)
 
-                #if hasattr(agent_response_message.message, 'text'):
                 if isinstance(agent_response_message.message, BaseMessage):
-                    agent_response_message.message.text = remove_markdown(agent_response_message.message.text) 
+                    agent_response_message.message.text = remove_markdown(
+                        agent_response_message.message.text
+                    )
                     logger.debug(
-                    f"Streaming_test cleaned agent response: {agent_response_message.message.text}"
+                        f"Streaming_test cleaned agent response: {agent_response_message.message.text}"
                     )
 
                 if self.conversation.filler_audio_worker is not None:
@@ -457,9 +460,9 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                     self.is_first_text_chunk = True
                     return
 
-                synthesizer_base_name: Optional[str] = (
-                    synthesizer_base_name_if_should_report_to_sentry(self.conversation.synthesizer)
-                )
+                synthesizer_base_name: Optional[
+                    str
+                ] = synthesizer_base_name_if_should_report_to_sentry(self.conversation.synthesizer)
                 create_speech_span: Optional[Span] = None
                 ttft_span: Optional[Span] = None
                 synthesis_span: Optional[Span] = None

@@ -73,7 +73,6 @@ class AzureTranscriber(BaseThreadAsyncTranscriber[AzureTranscriberConfig]):
         self.is_ready = False
 
     def recognized_sentence_final(self, evt):
-
         sentry_create_span(
             sentry_callable=sentry_sdk.start_span,
             op=CustomSentrySpans.LATENCY_OF_CONVERSATION,

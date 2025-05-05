@@ -88,7 +88,6 @@ class TwilioPhoneConversation(AbstractPhoneConversation[TwilioOutputDevice]):
         return TwilioPhoneConversationStateManager(self)
 
     async def attach_ws_and_start(self, ws: WebSocket):
-
         super().attach_ws(ws)
 
         await self._wait_for_twilio_start(ws)

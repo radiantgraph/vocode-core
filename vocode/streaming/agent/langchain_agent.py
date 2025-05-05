@@ -20,7 +20,6 @@ from vocode.utils.sentry_utils import CustomSentrySpans, sentry_create_span
 
 
 class LangchainAgent(RespondAgent[LangchainAgentConfig]):
-
     def __init__(
         self,
         agent_config: LangchainAgentConfig,

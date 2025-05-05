@@ -224,7 +224,6 @@ def sentry_create_span(*args, sentry_callable: Callable, **kwargs) -> Span:
 
 
 class SpanRecorder(_SpanRecorder):
-
     def __init__(self, maxlen):
         self.maxlen = 900
         self._auto_spans = []

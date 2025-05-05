@@ -44,7 +44,6 @@ DTMF_FREQUENCIES = {
 
 
 class DTMFToneGenerator(Singleton):
-
     def __init__(self):
         self.tone_cache: Dict[Tuple[KeypadEntry, int, AudioEncoding], bytes] = {}
 

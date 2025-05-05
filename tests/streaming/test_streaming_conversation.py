@@ -210,7 +210,6 @@ async def _mock_streaming_conversation_constructor(
     mocker: MockerFixture,
     interrupt_sensitivity: InterruptSensitivity = "low",
 ):
-
     streaming_conversation = create_fake_streaming_conversation(
         mocker,
         agent=create_fake_agent(
@@ -320,9 +319,9 @@ async def test_transcriptions_worker_ignores_associated_ignored_utterance(
     assert await _get_from_consumer_queue_if_exists(transcriptions_worker_consumer) is None
     assert not streaming_conversation.broadcast_interrupt.called  # ignored for length of response
 
-    streaming_conversation.transcript.event_logs[-1].text = (
-        "Hi, I was wondering if you had a chance to look at my email?"
-    )
+    streaming_conversation.transcript.event_logs[
+        -1
+    ].text = "Hi, I was wondering if you had a chance to look at my email?"
     streaming_conversation.transcript.event_logs[-1].is_final = True
     streaming_conversation.transcriptions_worker.consume_nonblocking(
         Transcription(

@@ -83,7 +83,6 @@ class PlayHtSynthesizerV2(VocodePlayHtSynthesizer):
         is_first_text_chunk: bool = False,
         is_sole_text_chunk: bool = False,
     ) -> SynthesisResult:
-
         self.total_chars += len(message.text)
         chunk_queue: asyncio.Queue[Optional[bytes]] = asyncio.Queue()
         asyncio_create_task(

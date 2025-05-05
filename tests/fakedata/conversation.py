@@ -39,7 +39,6 @@ DEFAULT_CHAT_GPT_AGENT_CONFIG = ChatGPTAgentConfig(
 
 
 class DummyOutputDevice(AbstractOutputDevice):
-
     def __init__(
         self,
         sampling_rate: int,

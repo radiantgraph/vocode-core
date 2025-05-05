@@ -18,7 +18,6 @@ class VonageClient(AbstractTelephonyClient):
         maybe_vonage_config: Optional[VonageConfig] = None,
         record_calls: bool = False,
     ):
-
         import vonage
 
         self.vonage = vonage
