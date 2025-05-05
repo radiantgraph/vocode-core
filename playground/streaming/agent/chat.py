@@ -97,9 +97,9 @@ async def run_agent(
 ):
     ended = False
     conversation_id = create_conversation_id()
-    agent_response_queue: asyncio.Queue[
-        InterruptibleAgentResponseEvent[AgentResponse]
-    ] = asyncio.Queue()
+    agent_response_queue: asyncio.Queue[InterruptibleAgentResponseEvent[AgentResponse]] = (
+        asyncio.Queue()
+    )
     agent_consumer = QueueConsumer(input_queue=agent_response_queue)
     agent.agent_responses_consumer = agent_consumer
 

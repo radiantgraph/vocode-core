@@ -162,7 +162,9 @@ class TelephonyServer:
     async def start_twilio_inbound_recording(
         self, twilio_sid: str, auth_token: str, conversation_id: str
     ) -> None:
-        url: str = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Calls/{conversation_id}/Recordings.json"
+        url: str = (
+            f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Calls/{conversation_id}/Recordings.json"
+        )
 
         async with httpx.AsyncClient() as client:
             response: httpx.Response = await client.post(

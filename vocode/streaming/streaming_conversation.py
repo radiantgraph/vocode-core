@@ -460,9 +460,9 @@ class StreamingConversation(AudioPipeline[OutputDeviceType]):
                     self.is_first_text_chunk = True
                     return
 
-                synthesizer_base_name: Optional[
-                    str
-                ] = synthesizer_base_name_if_should_report_to_sentry(self.conversation.synthesizer)
+                synthesizer_base_name: Optional[str] = (
+                    synthesizer_base_name_if_should_report_to_sentry(self.conversation.synthesizer)
+                )
                 create_speech_span: Optional[Span] = None
                 ttft_span: Optional[Span] = None
                 synthesis_span: Optional[Span] = None
