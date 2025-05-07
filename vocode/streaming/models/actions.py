@@ -98,6 +98,8 @@ class ActionInput(BaseModel, Generic[ParametersType]):
 class FunctionFragment(BaseModel):
     name: str
     arguments: str
+    tool_id: Optional[str] = None  # Used for Anthropic tool calls
+    is_tool_call: bool = False
 
 
 class FunctionCall(BaseModel):

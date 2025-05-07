@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic.v1 import validator
 
@@ -139,6 +139,8 @@ class AnthropicAgentConfig(AgentConfig, type=AgentType.ANTHROPIC.value):  # type
     model_name: str = CHAT_ANTHROPIC_DEFAULT_MODEL_NAME
     max_tokens: int = LLM_AGENT_DEFAULT_MAX_TOKENS
     temperature: float = LLM_AGENT_DEFAULT_TEMPERATURE
+    tools: Optional[List[Dict[str, Any]]] = None
+    tool_choice: Optional[Dict[str, Any]] = None
 
 
 class LangchainAgentConfig(AgentConfig, type=AgentType.LANGCHAIN.value):  # type: ignore
