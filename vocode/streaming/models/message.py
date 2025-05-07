@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from .model import TypedModel
 
@@ -9,6 +9,8 @@ class MessageType(str, Enum):
     SSML = "message_ssml"
     BOT_BACKCHANNEL = "bot_backchannel"
     LLM_TOKEN = "llm_token"
+    TOOL_USE = "tool_use"
+    TOOL_RESULT = "tool_result"
 
 
 class BaseMessage(TypedModel, type=MessageType.BASE):  # type: ignore
@@ -28,6 +30,18 @@ class BotBackchannel(BaseMessage, type=MessageType.BOT_BACKCHANNEL):  # type: ig
 class LLMToken(BaseMessage, type=MessageType.LLM_TOKEN):  # type: ignore
     pass
 
+
+class ToolUseMessage(BaseMessage, type=MessageType.TOOL_USE):  # type: ignore
+    tool_id: str
+    tool_name: str
+    tool_input: Dict[str, Any]
+
+
+class ToolResultMessage(BaseMessage, type=MessageType.TOOL_RESULT):  # type: ignore
+    tool_id: str
+    tool_name: str
+    tool_result: Dict[str, Any]
+    status: str = "success"  # can be "success" or "error"
 
 class SilenceMessage(BotBackchannel):
     text: str = "<silence>"
