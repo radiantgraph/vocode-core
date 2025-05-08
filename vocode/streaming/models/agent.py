@@ -124,6 +124,7 @@ class ChatGPTAgentConfig(AgentConfig, type=AgentType.CHAT_GPT.value):  # type: i
     model_name: str = CHAT_GPT_AGENT_DEFAULT_MODEL_NAME
     base_url_override: Optional[str] = None
     temperature: float = LLM_AGENT_DEFAULT_TEMPERATURE
+    stream: bool = False
     max_tokens: int = LLM_AGENT_DEFAULT_MAX_TOKENS
     azure_params: Optional[AzureOpenAIConfig] = None
     vector_db_config: Optional[VectorDBConfig] = None

@@ -98,6 +98,7 @@ class ChatGPTAgent(RespondAgent[ChatGPTAgentConfigType]):
             "messages": messages,
             "max_tokens": self.agent_config.max_tokens,
             "temperature": self.agent_config.temperature,
+            "stream": self.agent_config.stream,
         }
 
         if is_azure:
