@@ -229,6 +229,7 @@ class SpanRecorder(_SpanRecorder):
         self._auto_spans = []
         self._custom_spans = []
         self._low_prio_spans = []
+        self.dropped_spans = 0  # Initialize dropped_spans to avoid AttributeError
 
     def add(self, span: Span):
         if span.op in _FILTERED_SPANS and span.description in _FILTERED_SPANS:
